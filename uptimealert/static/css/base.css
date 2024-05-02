@@ -1,0 +1,15 @@
+.hero.is-primary {
+  background-color: #222222;
+}
+
+.hero.is-primary a.navbar-item:hover {
+  background-color: #111111;
+}
+
+.box {
+  background-color: #111111;
+}
+
+.hidden {
+  display: none;
+}

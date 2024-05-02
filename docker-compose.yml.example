@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  server:
+    image: uptimealert
+    build: .
+    container_name: uptimealert_server
+    command: gunicorn -w 6 -b 0.0.0.0 'app:create_app()'
+    restart: unless-stopped
+    ports:
+        - '8000'
+    env_file:
+        - .env
+    volumes:
+        - ./data/uptimealert/:/uptimealert/
+    networks:
+        caddy:
+            ipv4_address: 10.0.1.15
+        postgres-network:
+            ipv4_address: 10.0.2.8
+        default:
+
+  worker:
+    image: uptimealert
+    build: .
+    command: celery -A init_celery worker --loglevel INFO
+    container_name: uptimealert_worker
+    restart: unless-stopped
+    env_file:
+        - .env
+    volumes:
+        - ./data/uptimealert/:/uptimealert/
+    depends_on:
+        - server
+        - redis
+    networks:
+        postgres-network:
+            ipv4_address: 10.0.2.9
+        default:
+
+  beat:
+    image: uptimealert
+    build: .
+    command: celery -A init_celery beat --loglevel INFO
+    container_name: uptimealert_beat
+    restart: unless-stopped
+    env_file:
+        - .env
+    volumes:
+        - ./data/uptimealert/:/uptimealert/
+    depends_on:
+        - server
+        - worker
+        - redis
+    networks:
+        default:
+
+  redis:
+    image: redis:7.2.4-alpine
+    container_name: uptimealert_redis
+    restart: unless-stopped
+    command: redis-server --save 60 1 --loglevel warning --requirepass password
+    volumes:
+        - ./data/redis/:/data
+    networks:
+        default:
+
+networks:
+    default:
+    caddy:
+        external: true
+    postgres-network:
+        external: true

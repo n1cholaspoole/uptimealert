@@ -1,0 +1,8 @@
+.idea
+.venv
+.env
+__pycache__
+celerybeat-schedule
+docker-compose.yml
+run.sh
+reset.sh

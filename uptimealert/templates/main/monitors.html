@@ -1,0 +1,113 @@
+{% extends "/base.html" %}
+
+{% block header %}
+<script src="{{ url_for('static', filename='js/modal.js') }}"></script>
+<script src="{{ url_for('static', filename='js/range.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/option_hide.js') }}" defer></script>
+{% endblock %}
+
+{% block content %}
+    <div class="block">
+        <button class="has-text-black js-modal-trigger button is-block is-info is-large is-fullwidth" data-target="monitor-add-modal">
+            Add monitor
+        </button>
+    </div>
+<div class="block">
+{% for monitor in user_monitors %}
+    <div class="box">
+        <form method="POST" action="{{ url_for('main.monitors') + "/" + monitor.id|string + "/delete" }}">
+            <div class="grid">
+                    <div class="cell">
+                        <a class="" href="{{ url_for('main.monitors') + "/" + monitor.id|string }}">{{ monitor.name }}</a>
+                    </div>
+                    <div class="cell">
+                        <p class="">Status: {{ monitor.status }}</p>
+                    </div>
+                    <div class="cell">
+                        <p class="">Last Checked: {{ monitor.last_checked_at }}</p>
+                    </div>
+                    <div class="cell is-col- has-text-right">
+                        <button class="button is-danger is-small">Delete</button>
+                    </div>
+            </div>
+        </form>
+    </div>
+{% endfor %}
+</div>
+<div id="monitor-add-modal" class="modal">
+  <div class="modal-background"></div>
+
+  <div class="modal-content">
+    <div class="box">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div id="modal-notification" class="notification is-danger">
+                    {{ messages[0] }}
+                </div>
+            {% endif %}
+        {% endwith %}
+        <form method="POST" action="/monitors">
+            <div class="field">
+                <div class="control">
+                    <label>
+                        <input class="input is-large" required type="text" name="name" placeholder="Friendly name" maxlength="50" autofocus="">
+                    </label>
+                </div>
+            </div>
+
+            <div class="field level-left has-text-left">
+                <div class="control">
+                    <p>Type</p>
+                    <div class="select is-medium">
+                        <label>
+                            <select id="type" name="type">
+                                <option value="ping">PING</option>
+                                <option value="port">PORT</option>
+                                <option value="http">HTTP</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="control">
+                    <label for="hostname">
+                        <input id="hostname" class="input is-large" required type="text" name="hostname" placeholder="Hostname" maxlength="100" autofocus="">
+                    </label>
+                </div>
+            </div>
+
+            <div id="port-container" class="field hidden">
+                <div class="control">
+                    <label for="port">
+                        <input id="port" class="input is-large" type="number" name="port" placeholder="Port" min="0" max="65535" autofocus="">
+                    </label>
+                </div>
+            </div>
+
+            <div class="field has-text-left">
+                <div class="control">
+                    <p>Interval</p>
+                    <label for="interval"></label>
+                    <input id="interval" class="input is-large" required type="range" name="interval" min="1" max="60" value="30" list="intervals_list" autofocus="">
+                    <p id="interval_value"></p>
+
+                    <datalist id="interval_list">
+                        <option value="1"></option>
+                        <option value="5"></option>
+                        <option value="10"></option>
+                        <option value="15"></option>
+                        <option value="30"></option>
+                        <option value="60"></option>
+                    </datalist>
+                </div>
+            </div>
+            <button class="button is-block is-info is-large">Add monitor</button>
+        </form>
+    </div>
+  </div>
+
+  <button class="modal-close is-large" aria-label="close"></button>
+</div>
+{% endblock %}
