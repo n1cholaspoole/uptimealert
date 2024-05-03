@@ -22,12 +22,16 @@ def send_email(monitor, email, username):
     timestamp = monitor.last_checked_at.strftime("%d-%m-%Y %H:%M:%S")
 
     state = "DOWN"
+    header = f'Alert! {monitor.name} is {state}'
+    body = (f"Hi, {username}. Your monitor {monitor.name}\n"
+            f"is {state} after {monitor.failed_times} checks, since our last check at {timestamp}")
+
     if monitor.status:
         state = "UP"
-
-    msg = Message(f'Alert! {monitor.name} is {state}', recipients=[email])
-    msg.body = (f"Hi, {username}. Your monitor {monitor.name}\n"
+        body = (f"Hi, {username}. Your monitor {monitor.name}\n"
                 f"is {state} since our last check at {timestamp}")
+
+    msg = Message(header, body=body, recipients=[email])
     mail.send(msg)
 
 
@@ -43,35 +47,48 @@ def ping_servers():
         timestamp = now.strftime("%d-%m-%Y %H:%M:%S")
         current_status = None
 
-        if monitor.status is not None:
-            current_status = monitor.status
-
-        if monitor.last_checked_at is None or next_minute > monitor.last_checked_at + timedelta(minutes=monitor.interval):
+        if monitor.last_checked_at is None or next_minute > monitor.last_checked_at + timedelta(
+                minutes=monitor.interval):
             monitor.last_checked_at = now
 
             if monitor.type == "ping":
-                monitor.status = subprocess.call(['ping', '-c', '1', monitor.hostname]) == 0
-                print(f"PING | {timestamp} | {monitor.status}")
+                current_status = subprocess.call(['ping', '-c', '1', monitor.hostname]) == 0
+                print(f"{monitor.id} | PING | {timestamp} | {current_status}")
+            elif monitor.type == "port":
+                current_status = check_socket(monitor.hostname, monitor.port)
+                print(f"{monitor.id} | PORT | {timestamp} | {current_status}")
+            elif monitor.type == "http":
+                try:
+                    monitor_url = monitor.schema + monitor.hostname
+                    response = requests.get(f"{monitor_url}", timeout=10)
+                    if response.ok or response.is_redirect:
+                        current_status = True
+                    else:
+                        current_status = False
+                    print(f"{monitor.id} | HTTP | {timestamp} | {current_status} | {response.status_code}")
+                except requests.RequestException:
+                    current_status = False
+                    print(f"{monitor.id} | HTTP | {timestamp} | {current_status} | Exception")
 
-            if monitor.type == "port":
-                monitor.status = check_socket(monitor.hostname, monitor.port)
-                # monitor.status = "open" in str(
-                    # subprocess.run(['nmap', '-p', str(monitor.port), monitor.hostname], capture_output=True).stdout)
-                print(f"PORT | {timestamp} | {monitor.status}")
+            if monitor.status is None:
+                monitor.status = current_status
 
-            if monitor.type == "http":
-#                try:
-                response = requests.get(f"{monitor.hostname}", timeout=10)
-                if response.ok or response.is_redirect:
-                    monitor.status = True
+            if current_status:
+                if monitor.status != current_status:
+                    monitor.status = current_status
+                    monitor.failed_times = 0
+
+                    print(f"{monitor.id} | Monitor is UP. Sending email...")
+                    send_email(monitor, email, username)
+            else:
+                monitor.failed_times += 1
+                if monitor.failed_times == monitor.threshold:
+                    monitor.status = current_status
+
+                    print(f"{monitor.id} | FAILED {monitor.failed_times} times out of {monitor.threshold}. "
+                          f"Sending email...")
+                    send_email(monitor, email, username)
                 else:
-                    monitor.status = False
-#                except requests.RequestException:
-#                    monitor.status = False
-                print(f"HTTP | {timestamp} | {monitor.status} | {response.status_code}")
+                    print(f"{monitor.id} | FAILED {monitor.failed_times} times out of {monitor.threshold}")
 
             db.session.commit()
-
-            if current_status is not None and current_status is not monitor.status:
-                print("STATUS CHANGED. SENDING EMAIL")
-                send_email(monitor, email, username)

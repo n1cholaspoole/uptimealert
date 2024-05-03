@@ -71,36 +71,41 @@
             </div>
 
             <div class="field">
-                <div class="control">
+                <div class="control is-flex is-justify-content-space-between">
+                    <div id="schema-container" class="select is-large is-hidden">
+                        <label>
+                            <select id="schema" name="schema">
+                                <option value="https://">https://</option>
+                                <option value="http://">http://</option>
+                            </select>
+                        </label>
+                    </div>
                     <label for="hostname">
                         <input id="hostname" class="input is-large" required type="text" name="hostname" placeholder="Hostname" maxlength="100" autofocus="">
                     </label>
+                    <div id="port-container" class="is-hidden">
+                        <label for="port">
+                            <input id="port" class="input is-large" type="number" name="port" placeholder="Port" min="0" max="65535" autofocus="">
+                        </label>
+                    </div>
                 </div>
             </div>
 
-            <div id="port-container" class="field hidden">
+            <div class="field has-text-left">
                 <div class="control">
-                    <label for="port">
-                        <input id="port" class="input is-large" type="number" name="port" placeholder="Port" min="0" max="65535" autofocus="">
+                    <p>Checking interval (minutes): <span id="interval_value">10</span></p>
+                    <label for="interval">
+                        <input id="interval" class="input is-large" required type="range" name="interval" min="1" max="60" value="10" autofocus="">
                     </label>
                 </div>
             </div>
 
             <div class="field has-text-left">
                 <div class="control">
-                    <p>Interval</p>
-                    <label for="interval"></label>
-                    <input id="interval" class="input is-large" required type="range" name="interval" min="1" max="60" value="30" list="intervals_list" autofocus="">
-                    <p id="interval_value"></p>
-
-                    <datalist id="interval_list">
-                        <option value="1"></option>
-                        <option value="5"></option>
-                        <option value="10"></option>
-                        <option value="15"></option>
-                        <option value="30"></option>
-                        <option value="60"></option>
-                    </datalist>
+                    <p>Failure threshold (times): <span id="threshold_value">3</span></p>
+                    <label for="threshold">
+                        <input id="threshold" class="input is-large" required type="range" name="threshold" min="1" max="10" value="3" autofocus="">
+                    </label>
                 </div>
             </div>
             <button class="button is-block is-info is-large">Add monitor</button>

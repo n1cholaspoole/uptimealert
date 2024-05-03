@@ -42,6 +42,7 @@ def login():
                 remember = True if form.password.data else False
 
                 user = User.query.filter_by(email=form.email.data).first()
+                db.session.close()
 
                 if not user or not check_password_hash(user.password, form.password.data):
                     flash('Please check your login details and try again.')
@@ -78,6 +79,7 @@ def signup():
                                 password=generate_password_hash(form.password.data, method='pbkdf2:sha256'))
                 db.session.add(new_user)
                 db.session.commit()
+                db.session.close()
 
                 flash('Thanks for registering')
                 return redirect(url_for('auth.login'))

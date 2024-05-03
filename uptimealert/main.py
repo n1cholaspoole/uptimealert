@@ -4,6 +4,7 @@ from flask_login import current_user, login_required
 from models import Monitor
 from jinja2 import TemplateNotFound
 from app import db
+from datetime import datetime
 
 main = Blueprint('main', __name__, template_folder='templates')
 
@@ -11,9 +12,24 @@ main = Blueprint('main', __name__, template_folder='templates')
 class MonitorForm(Form):
     name = StringField('Friendly name', [validators.Length(max=50)])
     type = SelectField('Type', choices=[('ping', 'PING'), ('port', 'PORT'), ('http', 'HTTP')])
+    schema = SelectField('Schema', choices=[('https://', 'https://'), ('http://', 'http://')],
+                         validators=[validators.Optional()])
     hostname = StringField('Hostname', [validators.Length(max=100)])
-    port = IntegerField('Port', [validators.Optional(), validators.NumberRange(0, 65535)])
+    port = IntegerField('Port', [validators.Optional(),
+                                 validators.NumberRange(0, 65535)])
     interval = IntegerRangeField('Interval', [validators.NumberRange(1, 60)])
+    threshold = IntegerRangeField('Threshold', [validators.NumberRange(1, 10)])
+
+    def validate(self):
+        if not super(MonitorForm, self).validate():
+            return False
+        if self.type.data == "http" and self.schema.data is None:
+            self.schema.errors.append("Schema is required.")
+            return False
+        elif self.type.data == "port" and self.port.data is None:
+            self.port.errors.append("Port is required.")
+            return False
+        return True
 
 
 @main.route('/')
@@ -33,32 +49,6 @@ def dashboard():
     return render_template('/main/dashboard.html')
 
 
-@main.route('/admin/monitors', methods=['GET'])
-@login_required
-def monitors_admin():
-    form = MonitorForm(request.form)
-    if request.method == 'GET':
-        try:
-            if current_user.id == 1:
-                users_monitors = Monitor.query.order_by(Monitor.status).all()
-
-                if users_monitors:
-                    for monitor in users_monitors:
-                        if monitor.last_checked_at:
-                            monitor.last_checked_at = monitor.last_checked_at.strftime("%d-%m-%Y %H:%M")
-
-                        if monitor.status:
-                            monitor.status = "Up"
-                        elif monitor.status is None:
-                            monitor.status = "Yet unknown"
-                        else:
-                            monitor.status = "Down"
-
-            return render_template('/main/monitors_admin.html', users_monitors=users_monitors)
-        except TemplateNotFound:
-            abort(404)
-
-
 @main.route('/monitors', methods=['GET', 'POST'])
 @login_required
 def monitors():
@@ -66,6 +56,7 @@ def monitors():
     if request.method == 'GET':
         try:
             user_monitors = Monitor.query.filter_by(user_id=current_user.id).order_by(Monitor.status).all()
+            db.session.close()
 
             if user_monitors:
                 for monitor in user_monitors:
@@ -92,12 +83,18 @@ def monitors():
                     flash('Monitor with this name already exists')
                     return render_template('/main/monitors.html', form=form)
 
+                if form.type.data != 'http':
+                    form.schema.data = None
+
                 new_monitor = Monitor(name=form.name.data.strip(), type=form.type.data,
-                                      hostname=form.hostname.data, port=form.port.data,
-                                      interval=form.interval.data, user_id=current_user.id)
+                                      schema=form.schema.data, hostname=form.hostname.data,
+                                      port=form.port.data, interval=form.interval.data,
+                                      threshold=form.threshold.data, created_at=datetime.now(),
+                                      user_id=current_user.id)
 
                 db.session.add(new_monitor)
                 db.session.commit()
+                db.session.close()
 
                 return redirect(url_for('main.monitors'))
             except TemplateNotFound:
@@ -118,6 +115,7 @@ def monitors_delete(monitor_id):
         if monitor_id and user_monitor.user_id is current_user.id:
             db.session.delete(user_monitor)
             db.session.commit()
+            db.session.close()
 
         return redirect(url_for('main.monitors'))
     else:
@@ -130,6 +128,7 @@ def monitors_id(monitor_id):
     if request.method == 'GET':
         try:
             user_monitor = Monitor.query.filter_by(id=monitor_id).first()
+            db.session.close()
 
             if user_monitor.user_id is not current_user.id:
                 return redirect(url_for('main.monitors'))

@@ -6,14 +6,15 @@ from app import db
 
 admin = Blueprint('admin', __name__, template_folder='templates', url_prefix='/admin')
 
+
 @admin.route('/monitors', methods=['GET'])
 @login_required
 def monitors_admin():
-    form = MonitorForm(request.form)
     if request.method == 'GET':
         try:
             if current_user.id == 1:
                 users_monitors = Monitor.query.order_by(Monitor.status).all()
+                db.session.close()
 
                 if users_monitors:
                     for monitor in users_monitors:
@@ -27,7 +28,7 @@ def monitors_admin():
                         else:
                             monitor.status = "Down"
 
-            return render_template('admin/monitors.html', users_monitors=users_monitors)
+                return render_template('/admin/monitors.html', users_monitors=users_monitors)
         except TemplateNotFound:
             abort(404)
     else:
