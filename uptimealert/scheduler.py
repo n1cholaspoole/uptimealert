@@ -28,6 +28,7 @@ def send_email(monitor, email, username):
 
     if monitor.status:
         state = "UP"
+        header = f'Alert! {monitor.name} is {state}'
         body = (f"Hi, {username}. Your monitor {monitor.name}\n"
                 f"is {state} since our last check at {timestamp}")
 
