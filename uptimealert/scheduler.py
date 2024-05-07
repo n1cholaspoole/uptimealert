@@ -75,9 +75,10 @@ def ping_servers():
                 monitor.status = current_status
 
             if current_status:
+                monitor.failed_times = 0
+
                 if monitor.status != current_status:
                     monitor.status = current_status
-                    monitor.failed_times = 0
 
                     print(f"{monitor.id} | Monitor is UP. Sending email...")
                     send_email(monitor, email, username)
