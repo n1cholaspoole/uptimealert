@@ -1,10 +1,73 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "/base.html" %}
 
-</body>
-</html>
+{% block header %}
+<script src="{{ url_for('static', filename='js/field_hide.js') }}" defer></script>
+{% endblock %}
+
+{% block content %}
+<div class="block">
+    <div class="box">
+        <div class="fixed-grid has-3-cols has-1-cols-mobile">
+            <div class="grid">
+                <div class="cell">
+                    <p class="has-text-white title">{{ user_monitor.name }}</p>
+                </div>
+                <div class="cell">
+                    <p class="has-text-white title"> {{ user_monitor.type|upper }}</p>
+                </div>
+                    <div class="cell">
+                        {% if user_monitor.status %}
+                            <p class="has-text-white title">Up</p>
+                        {% elif user_monitor.status == None %}
+                            <p class="has-text-white title">Yet unknown</p>
+                        {% else %}
+                            <p class="has-text-white title">Down</p>
+                        {% endif %}
+                    </div>
+                {% if user_monitor.type == 'ping' %}
+                    <div class="cell">
+                        <p class="">Hostname: {{ user_monitor.hostname }}</p>
+                    </div>
+                {% elif user_monitor.type == 'http' %}
+                    <div class="cell">
+                        <p class="">URL: {{ user_monitor.schema|string + user_monitor.hostname|string }}</p>
+                    </div>
+                {% elif user_monitor.type == 'port' %}
+                    <div class="cell">
+                        <p class="">Hostname: {{ user_monitor.hostname|string + ":" + user_monitor.port|string }}</p>
+                    </div>
+                {% endif %}
+                <div class="cell">
+                    <p class="">Checking interval (minutes): {{ user_monitor.interval }}</p>
+                </div>
+                <div class="cell">
+                    <p class="">Failure threshold (times): {{ user_monitor.threshold }}</p>
+                </div>
+                <div class="cell">
+                    <p class="">Created at: {% if user_monitor.created_at %} {{ user_monitor.created_at.strftime("%d-%m-%Y %H:%M") }} {% else %} Not yet {% endif %}</p>
+                </div>
+                <div class="cell">
+                    <p class="">Last checked at: {% if user_monitor.last_checked_at %} {{ user_monitor.last_checked_at.strftime("%d-%m-%Y %H:%M") }} {% else %} Not yet {% endif %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="block">
+    <div id="incidents" class="box">
+        {% for incident in monitors_incidents %}
+        <div class="grid">
+            <div class="cell">
+                <p>Failure detected!</p>
+            </div>
+            <div class="cell">
+                <p>Created at: {% if incident.created_at %} {{ incident.created_at.strftime("%d-%m-%Y %H:%M") }} {% else %} Not yet {% endif %}</p>
+            </div>
+            <div class="cell">
+                <p>Resolved at: {% if incident.resolved_at %} {{ incident.resolved_at.strftime("%d-%m-%Y %H:%M") }} {% else %} Not yet {% endif %}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,7 +1,7 @@
-from flask import Blueprint, render_template, abort, request, flash, url_for, redirect
 from wtforms import Form, StringField, SelectField, IntegerRangeField, IntegerField, validators
+from flask import Blueprint, render_template, abort, request, flash, url_for, redirect
 from flask_login import current_user, login_required
-from models import Monitor
+from models import Monitor, Incident
 from jinja2 import TemplateNotFound
 from app import db
 from datetime import datetime
@@ -55,20 +55,9 @@ def monitors():
     form = MonitorForm(request.form)
     if request.method == 'GET':
         try:
-            user_monitors = Monitor.query.filter_by(user_id=current_user.id).order_by(Monitor.status).all()
+            user_monitors = Monitor.query.filter_by(user_id=current_user.id).order_by(Monitor.status,
+                                                                                      Monitor.name).all()
             db.session.close()
-
-            if user_monitors:
-                for monitor in user_monitors:
-                    if monitor.last_checked_at:
-                        monitor.last_checked_at = monitor.last_checked_at.strftime("%d-%m-%Y %H:%M")
-
-                    if monitor.status:
-                        monitor.status = "Up"
-                    elif monitor.status is None:
-                        monitor.status = "Yet unknown"
-                    else:
-                        monitor.status = "Down"
 
             return render_template('/main/monitors.html', user_monitors=user_monitors)
         except TemplateNotFound:
@@ -128,12 +117,14 @@ def monitors_id(monitor_id):
     if request.method == 'GET':
         try:
             user_monitor = Monitor.query.filter_by(id=monitor_id).first()
+            monitors_incidents = Incident.query.filter_by(monitor_id=monitor_id).all()
             db.session.close()
 
             if user_monitor.user_id is not current_user.id:
                 return redirect(url_for('main.monitors'))
 
-            return render_template('/main/monitor.html', user_monitor=user_monitor)
+            return render_template('/main/monitor.html',
+                                   user_monitor=user_monitor, monitors_incidents=monitors_incidents)
         except TemplateNotFound:
             abort(404)
     else:

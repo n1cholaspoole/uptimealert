@@ -1,7 +1,7 @@
 from init_celery import celery
 from app import db
 from app import mail
-from models import Monitor, User
+from models import Monitor, User, Incident
 from datetime import datetime, timedelta
 from flask_mail import Message
 from contextlib import closing
@@ -80,17 +80,33 @@ def ping_servers():
                 if monitor.status != current_status:
                     monitor.status = current_status
 
+                    incident = Incident.query.filter_by(monitor_id=monitor.id).order_by(
+                        Incident.created_at.desc()).first()
+                    if incident:
+                        incident.resolved_at = now
+                        print("Incident resolved.")
+
+                    db.session.commit()
+
                     print(f"{monitor.id} | Monitor is UP. Sending email...")
                     send_email(monitor, email, username)
             else:
                 monitor.failed_times += 1
+                db.session.commit()
+
+                print(f"{monitor.id} | FAILED {monitor.failed_times} times out of {monitor.threshold}")
+
                 if monitor.failed_times == monitor.threshold:
                     monitor.status = current_status
 
-                    print(f"{monitor.id} | FAILED {monitor.failed_times} times out of {monitor.threshold}. "
-                          f"Sending email...")
-                    send_email(monitor, email, username)
-                else:
-                    print(f"{monitor.id} | FAILED {monitor.failed_times} times out of {monitor.threshold}")
+                    print("Recording new incident...")
+                    new_incident = Incident(monitor_id=monitor.id, created_at=now)
 
-            db.session.commit()
+                    db.session.add(new_incident)
+                    db.session.commit()
+
+                    print("Sending email...")
+                    send_email(monitor, email, username)
+
+    db.session.commit()
+    db.session.close()

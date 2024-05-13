@@ -1,4 +1,4 @@
-FROM python:3.11-alpine as main
+FROM python:3.12-alpine as main
 
 ENV PYTHONUNBUFFERED=1
 

@@ -27,14 +27,15 @@ class Monitor(db.Model):
     status = db.Column(db.Boolean)
 
     user = db.relationship('User', foreign_keys='Monitor.user_id')
+    incidents = db.relationship("Incident", cascade="all, delete", back_populates="monitor")
 
 
 class Incident(db.Model):
     __tablename__ = "incidents"
     id = db.Column(db.Integer, primary_key=True, index=True)
-    type = db.Column(db.Integer)
     monitor_id = db.Column(db.Integer, db.ForeignKey(Monitor.id))
     created_at = db.Column(db.DateTime)
     resolved_at = db.Column(db.DateTime)
     caused_by = db.Column(db.String(150))
-    monitor = db.relationship('Monitor', foreign_keys='Incident.monitor_id')
+
+    monitor = db.relationship('Monitor', back_populates="incidents", foreign_keys='Incident.monitor_id')
