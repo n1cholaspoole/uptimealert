@@ -1,5 +1,5 @@
 let incidents = document.getElementById('incidents')
 
 if (incidents.innerText === "") {
-    incidents.classList.add('is-hidden')
+    incidents.classList.remove('is-hidden')
 }

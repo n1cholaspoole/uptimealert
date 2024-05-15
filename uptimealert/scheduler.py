@@ -23,13 +23,13 @@ def send_email(monitor, email, username):
 
     state = "DOWN"
     header = f'Alert! {monitor.name} is {state}'
-    body = (f"Hi, {username}. Your monitor {monitor.name}\n"
+    body = (f"Hi, {username}. Your monitor {monitor.name} "
             f"is {state} after {monitor.failed_times} checks, since our last check at {timestamp}")
 
     if monitor.status:
         state = "UP"
         header = f'Alert! {monitor.name} is {state}'
-        body = (f"Hi, {username}. Your monitor {monitor.name}\n"
+        body = (f"Hi, {username}. Your monitor {monitor.name} "
                 f"is {state} since our last check at {timestamp}")
 
     msg = Message(header, body=body, recipients=[email])
