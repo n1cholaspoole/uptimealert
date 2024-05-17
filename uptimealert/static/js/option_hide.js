@@ -10,11 +10,11 @@ function hide(value) {
   }
 
   if (value === 'http') {
-    hostname.placeholder='URL';
+    hostname.placeholder='URL-адрес';
     hostname.type='link';
     schema.classList.remove('is-hidden');
   } else {
-    hostname.placeholder='Hostname';
+    hostname.placeholder='Имя хоста';
     hostname.type='text';
     schema.classList.add('is-hidden');
   }

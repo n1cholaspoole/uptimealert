@@ -26,7 +26,7 @@ def login():
                 db.session.close()
 
                 if not user or not check_password_hash(user.password, form.password.data):
-                    flash('Please check your login details and try again.')
+                    flash('Проверьте свои учетные данные и попробуйте еще раз.')
                     return render_template('/auth/login.html', form=form)
 
                 login_user(user, remember=remember)
@@ -53,7 +53,7 @@ def signup():
                 user = User.query.filter_by(email=form.email.data).first()
 
                 if user:
-                    flash('Email address already exists')
+                    flash('Аккаунт с такой электронной почтой уже существует.')
                     return render_template('/auth/signup.html', form=form)
 
                 new_user = User(email=form.email.data, username=form.username.data,
@@ -62,11 +62,11 @@ def signup():
                 db.session.commit()
                 db.session.close()
 
-                flash('Thanks for registering')
+                flash('Спасибо за регистрацию.')
                 return redirect(url_for('auth.login'))
             except TemplateNotFound:
                 abort(404)
-        flash("Validation error")
+        flash("Ошибка валидации формы.")
         return render_template('/auth/signup.html', form=form)
     else:
         abort(405)

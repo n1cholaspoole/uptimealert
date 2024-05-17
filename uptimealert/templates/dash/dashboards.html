@@ -7,7 +7,7 @@
 {% block content %}
     <div class="block">
         <button class="has-text-black js-modal-trigger button is-block is-info is-large is-fullwidth" data-target="dashboard-add-modal">
-            Add status page
+            Добавить страницу состояния
         </button>
     </div>
 <div class="block">
@@ -22,8 +22,8 @@
                         <a class="link has-text-center" href="{{ url_for('dash.dashboard', dashboard_id=dashboard.id) }}">{{ url_for('dash.dashboard', dashboard_id=dashboard.id) }}</a>
                     </div>
                     <div class="cell has-text-right">
-                        <button class="button is-small js-modal-trigger" type="button" data-target="dashboard-add-monitor-modal" data-value="{{ dashboard.id|string }}">Add monitor</button>
-                        <button class="button is-danger is-small">Delete</button>
+                        <button class="button is-small js-modal-trigger" type="button" data-target="dashboard-add-monitor-modal" data-value="{{ dashboard.id|string }}">Добавить монитор</button>
+                        <button class="button is-danger is-small">Удалить</button>
                     </div>
             </div>
             {% if dashboard.monitors %}
@@ -38,7 +38,7 @@
                         <a class="has-text-white subtitle" href="{{ url_for('main.monitor', monitor_id=monitor.monitor.id ) }}">{{ monitor.monitor.name }}</a>
                     </div>
                     <div class="cell has-text-right">
-                        <button class="button is-danger is-small" type="submit">Delete</button>
+                        <button class="button is-danger is-small" type="submit">Удалить</button>
                     </div>
                 </div>
             </form>

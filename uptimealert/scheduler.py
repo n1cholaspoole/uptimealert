@@ -21,16 +21,16 @@ def check_socket(host, port):
 def send_email(monitor, email, username):
     timestamp = monitor.last_checked_at.strftime("%d-%m-%Y %H:%M:%S")
 
-    state = "DOWN"
-    header = f'Alert! {monitor.name} is {state}'
-    body = (f"Hi, {username}. Your monitor {monitor.name} "
-            f"is {state} after {monitor.failed_times} checks, since our last check at {timestamp}")
+    state = "НЕДОСТУПЕН"
+    header = f'Тревога! {monitor.name} больше {state}'
+    body = (f"{username}, ваш монитор {monitor.name} "
+            f"больше {state} после {monitor.failed_times} проверок, время последней проверки {timestamp}")
 
     if monitor.status:
-        state = "UP"
-        header = f'Alert! {monitor.name} is {state}'
-        body = (f"Hi, {username}. Your monitor {monitor.name} "
-                f"is {state} since our last check at {timestamp}")
+        state = "ДОСТУПЕН"
+        header = f'{monitor.name} снова {state}'
+        body = (f"{username}, ваш монитор {monitor.name} "
+                f"снова {state} с нашей последней проверки в {timestamp}")
 
     msg = Message(header, body=body, recipients=[email])
     mail.send(msg)

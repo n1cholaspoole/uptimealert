@@ -29,7 +29,7 @@ def dashboards():
                 dashboard = Dashboard.query.filter_by(name=form.name.data.strip(), user_id=current_user.id).first()
 
                 if dashboard:
-                    flash('Dashboard with this name already exists')
+                    flash('Страница состояния с таким названием уже существует.')
                     return render_template('/dash/dashboards.html', form=form)
 
                 new_dashboard = Dashboard(name=form.name.data.strip(), user_id=current_user.id)
@@ -58,7 +58,7 @@ def dashboards_monitor_add():
                              .first())
 
         if dashboard_monitor:
-            flash('Monitor with this name already exists in this status page')
+            flash('Этот монитор уже существует на странице.')
             return render_template('/dash/dashboards.html', form=form)
 
         new_dashboard_monitor = DashboardMonitor(dashboard_id=form.dashboard_id.data, monitor_id=form.monitor_id.data)

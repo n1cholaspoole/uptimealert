@@ -39,7 +39,7 @@ def monitors():
                 monitor = Monitor.query.filter_by(name=form.name.data.strip()).first()
 
                 if monitor and monitor.user_id is current_user.id:
-                    flash('Monitor with this name already exists')
+                    flash('Монитор с таким названием уже существует.')
                     return render_template('/main/monitors.html', form=form)
 
                 if form.type.data != 'http':
@@ -58,7 +58,7 @@ def monitors():
                 return redirect(url_for('main.monitors'))
             except TemplateNotFound:
                 abort(404)
-        flash("Validation error")
+        flash("Ошибка валидации формы.")
         print(form.errors)
         return render_template('/main/monitors.html', form=form)
     else:

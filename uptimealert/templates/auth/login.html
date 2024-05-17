@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="column is-4 is-offset-4">
-    <h3 class="title has-text-white">Login</h3>
+    <h3 class="title has-text-white">Вход</h3>
     <div class="box">
         {% with messages = get_flashed_messages() %}
             {% if messages %}
@@ -14,25 +14,25 @@
         <form method="POST" action="/auth/login">
             <div class="field">
                 <div class="control">
-                    <input class="input is-large" required type="email" name="email" placeholder="Email" minlength="5" maxlength="50" autofocus="">
+                    <input class="input is-large" required type="email" name="email" placeholder="Электронная почта" minlength="5" maxlength="50" autofocus="">
                 </div>
             </div>
 
             <div class="field">
                 <div class="control">
-                    <input class="input is-large" required type="password" name="password" placeholder="Password" minlength="8" maxlength="100">
+                    <input class="input is-large" required type="password" name="password" placeholder="Пароль" minlength="8" maxlength="100">
                 </div>
             </div>
             <div class="field">
                 <label class="checkbox">
                     <input type="checkbox" name="remember">
-                    Remember me
+                    Запомнить устройство
                 </label>
             </div>
-            <button class="button is-block is-info is-large is-fullwidth">Login</button>
+            <button class="button is-block is-info is-large is-fullwidth">Войти</button>
         </form>
         <div class="block has-text-link">
-                <a href="{{ url_for('auth.signup') }}">Create account.</a>
+                <a href="{{ url_for('auth.signup') }}">Создать аккаунт</a>
         </div>
     </div>
 </div>

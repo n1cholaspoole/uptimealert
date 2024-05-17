@@ -6,7 +6,7 @@
 {% block content %}
     <div class="block">
         <button class="has-text-black js-modal-trigger button is-block is-info is-large is-fullwidth" data-target="monitor-add-modal">
-            Add monitor
+            Добавить монитор
         </button>
     </div>
 <div class="block">
@@ -19,18 +19,18 @@
                 </div>
                 <div class="cell">
                     {% if monitor.status %}
-                        <p class="">Status: Up</p>
+                        <p class="">Состояние: Доступен</p>
                     {% elif monitor.status == None %}
-                        <p class="">Status: Yet unknown</p>
+                        <p class="">Состояние: Пока неизвестно</p>
                     {% else %}
-                        <p class="">Status: Down</p>
+                        <p class="">Состояние: Недоступен</p>
                     {% endif %}
                 </div>
                 <div class="cell">
-                    <p class="">Last Checked: {% if monitor.last_checked_at %}{{ monitor.last_checked_at.strftime("%d-%m-%Y %H:%M") }} {% else %} Not yet {% endif %}</p>
+                    <p class="">Последняя проверка: {% if monitor.last_checked_at %}{{ monitor.last_checked_at.strftime("%d-%m-%Y %H:%M") }} {% else %} пока не было {% endif %}</p>
                 </div>
                 <div class="cell has-text-right">
-                    <button class="button is-danger is-small">Delete</button>
+                    <button class="button is-danger is-small">Удалить</button>
                 </div>
             </div>
         </form>

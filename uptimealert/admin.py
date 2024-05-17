@@ -22,11 +22,11 @@ def monitors_admin():
                             monitor.last_checked_at = monitor.last_checked_at.strftime("%d-%m-%Y %H:%M")
 
                         if monitor.status:
-                            monitor.status = "Up"
+                            monitor.status = "Доступен"
                         elif monitor.status is None:
-                            monitor.status = "Yet unknown"
+                            monitor.status = "Пока неизвестно"
                         else:
-                            monitor.status = "Down"
+                            monitor.status = "Недоступен"
 
                 return render_template('/admin/monitors.html', users_monitors=users_monitors)
         except TemplateNotFound:

@@ -17,37 +17,37 @@
                 </div>
                     <div class="cell">
                         {% if user_monitor.status %}
-                            <p class="has-text-white title">Up</p>
+                            <p class="has-text-white title">Доступен</p>
                         {% elif user_monitor.status == None %}
-                            <p class="has-text-white title">Yet unknown</p>
+                            <p class="has-text-white title">Пока неизвестно</p>
                         {% else %}
-                            <p class="has-text-white title">Down</p>
+                            <p class="has-text-white title">Недоступен</p>
                         {% endif %}
                     </div>
                 {% if user_monitor.type == 'ping' %}
                     <div class="cell">
-                        <p class="">Hostname: {{ user_monitor.hostname }}</p>
+                        <p class="">Имя хоста: {{ user_monitor.hostname }}</p>
                     </div>
                 {% elif user_monitor.type == 'http' %}
                     <div class="cell">
-                        <p class="">URL: {{ user_monitor.schema|string + user_monitor.hostname|string }}</p>
+                        <p class="">URL-адрес: {{ user_monitor.schema|string + user_monitor.hostname|string }}</p>
                     </div>
                 {% elif user_monitor.type == 'port' %}
                     <div class="cell">
-                        <p class="">Hostname: {{ user_monitor.hostname|string + ":" + user_monitor.port|string }}</p>
+                        <p class="">Имя хоста: {{ user_monitor.hostname|string + ":" + user_monitor.port|string }}</p>
                     </div>
                 {% endif %}
                 <div class="cell">
-                    <p class="">Checking interval (minutes): {{ user_monitor.interval }}</p>
+                    <p class="">Интервал проверки (минут): {{ user_monitor.interval }}</p>
                 </div>
                 <div class="cell">
-                    <p class="">Failure threshold (times): {{ user_monitor.threshold }}</p>
+                    <p class="">Порог отказа (раз): {{ user_monitor.threshold }}</p>
                 </div>
                 <div class="cell">
-                    <p class="">Created at: {% if user_monitor.created_at %} {{ user_monitor.created_at.strftime("%d-%m-%Y %H:%M") }} {% else %} Not yet {% endif %}</p>
+                    <p class="">Создано в: {% if user_monitor.created_at %} {{ user_monitor.created_at.strftime("%d-%m-%Y %H:%M") }} {% else %} Пока не было {% endif %}</p>
                 </div>
                 <div class="cell">
-                    <p class="">Last checked at: {% if user_monitor.last_checked_at %} {{ user_monitor.last_checked_at.strftime("%d-%m-%Y %H:%M") }} {% else %} Not yet {% endif %}</p>
+                    <p class="">Последняя проверка: {% if user_monitor.last_checked_at %} {{ user_monitor.last_checked_at.strftime("%d-%m-%Y %H:%M") }} {% else %} Пока не было {% endif %}</p>
                 </div>
             </div>
         </div>
@@ -58,13 +58,13 @@
         {% for incident in monitors_incidents %}
         <div class="grid">
             <div class="cell">
-                <p>Failure detected!</p>
+                <p>Зафиксировано падение!</p>
             </div>
             <div class="cell">
-                <p>Created at: {% if incident.created_at %} {{ incident.created_at.strftime("%d-%m-%Y %H:%M") }} {% else %} Not yet {% endif %}</p>
+                <p>Создано в: {% if incident.created_at %} {{ incident.created_at.strftime("%d-%m-%Y %H:%M") }} {% else %} Пока не было {% endif %}</p>
             </div>
             <div class="cell">
-                <p>Resolved at: {% if incident.resolved_at %} {{ incident.resolved_at.strftime("%d-%m-%Y %H:%M") }} {% else %} Not yet {% endif %}</p>
+                <p>Решено в: {% if incident.resolved_at %} {{ incident.resolved_at.strftime("%d-%m-%Y %H:%M") }} {% else %} Пока не было {% endif %}</p>
             </div>
         </div>
         {% endfor %}

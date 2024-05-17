@@ -1,7 +1,7 @@
 let timerInterval;
 
 function updateContent() {
-    $('#timer').text("Updating...");
+    $('#timer').text("Обновление...");
 
     $.ajax({
         url: window.location.pathname + 'update_partial/',
@@ -22,7 +22,7 @@ function updateTimer() {
     timerInterval = setInterval(function() {
         seconds--;
         let remainingSeconds = seconds % 60;
-        $('#timer').text("Next update in " + remainingSeconds + " seconds.");
+        $('#timer').text("Следующее обновление через " + remainingSeconds + " секунд.");
     }, 1000);
 }
 
@@ -34,7 +34,7 @@ function resetTimer() {
 function failCheck() {
     let anyDown = false;
     $('.status').each(function() {
-        if ($(this)[0].innerText === "Status: Down") {
+        if ($(this)[0].innerText === "Состояние: Недоступен") {
             anyDown = true;
             return false;
         }

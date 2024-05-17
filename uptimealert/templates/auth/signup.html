@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="column is-4 is-offset-4">
-    <h3 class="title has-text-white">Sign Up</h3>
+    <h3 class="title has-text-white">Зарегистрироваться</h3>
     <div class="box">
         {% with messages = get_flashed_messages() %}
             {% if messages %}
@@ -15,7 +15,7 @@
             <div class="field">
                 <div class="control">
                     <label>
-                        <input class="input is-large" required type="email" name="email" placeholder="Email" minlength="5" maxlength="50" autofocus="">
+                        <input class="input is-large" required type="email" name="email" placeholder="Электронная почта" minlength="5" maxlength="50" autofocus="">
                     </label>
                 </div>
             </div>
@@ -23,7 +23,7 @@
             <div class="field">
                 <div class="control">
                     <label>
-                        <input class="input is-large" required type="text" name="username" placeholder="Username" minlength="3" maxlength="50" autofocus="">
+                        <input class="input is-large" required type="text" name="username" placeholder="Имя пользователя" minlength="3" maxlength="50" autofocus="">
                     </label>
                 </div>
             </div>
@@ -31,7 +31,7 @@
             <div class="field">
                 <div class="control">
                     <label>
-                        <input class="input is-large" required type="password" name="password" minlength="8" maxlength="100" placeholder="Password">
+                        <input class="input is-large" required type="password" name="password" minlength="8" maxlength="100" placeholder="Пароль">
                     </label>
                 </div>
             </div>
@@ -39,11 +39,11 @@
             <div class="field">
                 <div class="control">
                     <label>
-                        <input class="input is-large" required type="password" name="confirm" minlength="8" maxlength="100" placeholder="Confirm ">
+                        <input class="input is-large" required type="password" name="confirm" minlength="8" maxlength="100" placeholder="Подтверждение пароля">
                     </label>
                 </div>
             </div>
-            <button class="button is-block is-info is-large is-fullwidth">Sign Up</button>
+            <button class="button is-block is-info is-large is-fullwidth">Зарегистрироваться</button>
         </form>
     </div>
 </div>

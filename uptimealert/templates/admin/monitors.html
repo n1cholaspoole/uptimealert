@@ -14,13 +14,13 @@
                         <a class="" href="{{ url_for('main.monitors') + "/" + monitor.id|string }}">{{ monitor.name }}</a>
                     </div>
                     <div class="cell">
-                        <p class="">Status: {{ monitor.status }}</p>
+                        <p class="">Состояние: {{ monitor.status }}</p>
                     </div>
                     <div class="cell">
-                        <p class="">Last Checked: {{ monitor.last_checked_at }}</p>
+                        <p class="">Последняя проверка: {{ monitor.last_checked_at }}</p>
                     </div>
                     <div class="cell">
-                        <p class="">Owner ID: {{ monitor.user_id }}</p>
+                        <p class="">Идентификатор владельца: {{ monitor.user_id }}</p>
                     </div>
             </div>
     </div>

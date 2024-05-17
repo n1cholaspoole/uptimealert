@@ -7,7 +7,7 @@ class SignUpForm(Form):
     password = PasswordField('Password', [
         validators.Length(min=8, max=100),
         validators.DataRequired(),
-        validators.EqualTo('confirm', message='Passwords must match')
+        validators.EqualTo('confirm', message='Пароли должны совпадать.')
     ])
     confirm = PasswordField('Repeat Password')
 
@@ -35,10 +35,10 @@ class MonitorForm(Form):
         if not super(MonitorForm, self).validate():
             return False
         if self.type.data == "http" and self.schema.data is None:
-            self.schema.errors.append("Schema is required.")
+            self.schema.errors.append("Схема обязательна.")
             return False
         elif self.type.data == "port" and self.port.data is None:
-            self.port.errors.append("Port is required.")
+            self.port.errors.append("Порт обязателен.")
             return False
         return True
 
