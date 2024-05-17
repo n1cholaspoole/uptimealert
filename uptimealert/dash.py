@@ -90,9 +90,9 @@ def dashboards_monitor_delete(dashboard_id, monitor_id):
         abort(405)
 
 
-def get_monitors_by_dash_id(dashboard_id):
+def get_monitors_by_dash_id(dashboard_id, current_user_id):
     user_dashboard_monitors = (Monitor.query.join(DashboardMonitor)
-                               .filter(DashboardMonitor.dashboard_id == dashboard_id)
+                               .filter(DashboardMonitor.dashboard_id == dashboard_id, Monitor.user_id == current_user_id)
                                .order_by(Monitor.status, Monitor.name).all())
     db.session.close()
 
@@ -104,9 +104,13 @@ def get_monitors_by_dash_id(dashboard_id):
 def dashboard(dashboard_id):
     if request.method == 'GET':
         try:
-            user_dashboard_monitors = get_monitors_by_dash_id(dashboard_id)
+            user_dashboard_monitors = get_monitors_by_dash_id(dashboard_id, current_user.id)
 
-            return render_template('/dash/dashboard.html', user_dashboard_monitors=user_dashboard_monitors)
+            if user_dashboard_monitors:
+                return render_template('/dash/dashboard.html',
+                                       user_dashboard_monitors=user_dashboard_monitors)
+
+            return redirect(url_for("dash.dashboards"))
         except TemplateNotFound:
             abort(404)
     else:
@@ -134,10 +138,13 @@ def dashboards_delete(dashboard_id):
 def dash_get_monitors(dashboard_id):
     if request.method == 'GET':
         try:
-            user_dashboard_monitors = get_monitors_by_dash_id(dashboard_id)
+            user_dashboard_monitors = get_monitors_by_dash_id(dashboard_id, current_user.id)
 
-            return render_template('/dash/dashboard_partial.html',
-                                   user_dashboard_monitors=user_dashboard_monitors)
+            if user_dashboard_monitors:
+                return render_template('/dash/dashboard_partial.html',
+                                       user_dashboard_monitors=user_dashboard_monitors)
+
+            return redirect(url_for("dash.dashboards"))
         except TemplateNotFound:
             abort(404)
     else:
