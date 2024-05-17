@@ -65,6 +65,7 @@ def create_app() -> Flask:
 
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'
+    login_manager.login_message = 'Требуется авторизация.'
     login_manager.init_app(app)
 
     from models import User
