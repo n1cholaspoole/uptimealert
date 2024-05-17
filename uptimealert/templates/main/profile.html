@@ -1,7 +1,31 @@
 {% extends "/base.html" %}
 
 {% block content %}
-<h1 class="title has-text-white">
+<h1 class="title has-text-white has-text-left">
   Добро пожаловать, {{ username }}!
 </h1>
+    <div class="fixed-grid has-2-cols has-1-cols-mobile">
+        <div class="grid">
+            <form method="POST" action="{{ url_for('main.profile_change_email') }}">
+                <div class="field cell has-2-cells">
+                    <div class="control">
+                        <label>
+                            <input class="input is-large" required type="email" name="email" placeholder="Электронная почта" minlength="5" maxlength="50" autofocus="">
+                        </label>
+                    </div>
+                </div>
+                <button class="button is-block is-info is-large is-float-right">Изменить электронную почту</button>
+            </form>
+            <form method="POST" action="{{ url_for('main.profile_change_username') }}">
+                <div class="field cell">
+                    <div class="control">
+                        <label>
+                            <input class="input is-large" required type="text" name="username" placeholder="Имя пользователя" minlength="5" maxlength="50" autofocus="">
+                        </label>
+                    </div>
+                </div>
+                <button class="button is-block is-info is-large is-float-right">Изменить имя пользователя</button>
+            </form>
+        </div>
+    </div>
 {% endblock %}

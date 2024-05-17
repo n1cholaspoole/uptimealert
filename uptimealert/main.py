@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, abort, request, flash, url_for, redirect
 from flask_login import current_user, login_required
-from models import Monitor, Incident
-from forms import MonitorForm
+from models import Monitor, Incident, User
+from forms import MonitorForm, EmailForm, UsernameForm
 from jinja2 import TemplateNotFound
 from app import db
 from datetime import datetime
@@ -9,16 +9,45 @@ from datetime import datetime
 main = Blueprint('main', __name__, template_folder='templates')
 
 
-@main.route('/')
+@main.route('/', methods=['GET'])
 def index():
     return render_template('/main/index.html')
 
 
-@main.route('/profile/')
+@main.route('/profile/', methods=['GET'])
 @login_required
 def profile():
     return render_template('/main/profile.html', username=current_user.username)
 
+
+@main.route('/profile/change/email', methods=['POST'])
+@login_required
+def profile_change_email():
+    form = EmailForm(request.form)
+    if request.method == 'POST':
+        if form.validate():
+            User.query.filter_by(id=current_user.id).update({User.email: form.email.data})
+            db.session.commit()
+            db.session.close()
+
+        return redirect(url_for('main.profile'))
+    else:
+        abort(405)
+
+
+@main.route('/profile/change/username', methods=['POST'])
+@login_required
+def profile_change_username():
+    form = UsernameForm(request.form)
+    if request.method == 'POST':
+        if form.validate():
+            User.query.filter_by(id=current_user.id).update({User.username: form.username.data})
+            db.session.commit()
+            db.session.close()
+
+        return redirect(url_for('main.profile'))
+    else:
+        abort(405)
 
 @main.route('/monitors/', methods=['GET', 'POST'])
 @login_required

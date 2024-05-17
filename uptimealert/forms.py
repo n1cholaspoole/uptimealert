@@ -3,7 +3,7 @@ from wtforms import Form, StringField, SelectField, IntegerRangeField, IntegerFi
 
 class SignUpForm(Form):
     username = StringField('Username', [validators.Length(min=3, max=50)])
-    email = StringField('Email Address', [validators.Length(min=6, max=50)])
+    email = StringField('Email Address', [validators.Email(), validators.Length(min=6, max=50)])
     password = PasswordField('Password', [
         validators.Length(min=8, max=100),
         validators.DataRequired(),
@@ -13,7 +13,7 @@ class SignUpForm(Form):
 
 
 class LoginForm(Form):
-    email = StringField('Email Address', [validators.Length(min=6, max=50)])
+    email = StringField('Email Address', [validators.Email(), validators.Length(min=6, max=50)])
     password = PasswordField('New Password', [
         validators.Length(min=8, max=100),
         validators.DataRequired()
@@ -54,3 +54,11 @@ class DashForm(Form):
 class DashMonitorForm(Form):
     dashboard_id = IntegerField('Dashboard ID', [validators.NumberRange()])
     monitor_id = IntegerField('Monitor ID', [validators.NumberRange()])
+
+
+class EmailForm(Form):
+    email = StringField('Email Address', [validators.Email(), validators.Length(min=6, max=50)])
+
+
+class UsernameForm(Form):
+    username = StringField('Username', [validators.Length(min=3, max=50)])
