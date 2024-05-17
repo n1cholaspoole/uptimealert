@@ -1,34 +1,15 @@
 from flask import Blueprint, render_template, abort, url_for, request, flash, redirect
-from wtforms import Form, StringField, PasswordField, validators
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, logout_user, login_required
 from models import User
+from forms import SignUpForm, LoginForm
 from jinja2 import TemplateNotFound
 from app import db
 
 auth = Blueprint('auth', __name__, template_folder='templates', url_prefix='/auth')
 
 
-class SignUpForm(Form):
-    username = StringField('Username', [validators.Length(min=3, max=50)])
-    email = StringField('Email Address', [validators.Length(min=6, max=50)])
-    password = PasswordField('Password', [
-        validators.Length(min=8, max=100),
-        validators.DataRequired(),
-        validators.EqualTo('confirm', message='Passwords must match')
-    ])
-    confirm = PasswordField('Repeat Password')
-
-
-class LoginForm(Form):
-    email = StringField('Email Address', [validators.Length(min=6, max=50)])
-    password = PasswordField('New Password', [
-        validators.Length(min=8, max=100),
-        validators.DataRequired()
-    ])
-
-
-@auth.route('/login', methods=['GET', 'POST'])
+@auth.route('/login/', methods=['GET', 'POST'])
 def login():
     form = LoginForm(request.form)
     if request.method == 'GET':
@@ -58,7 +39,7 @@ def login():
         abort(405)
 
 
-@auth.route('/signup', methods=['GET', 'POST'])
+@auth.route('/signup/', methods=['GET', 'POST'])
 def signup():
     form = SignUpForm(request.form)
     if request.method == 'GET':
@@ -91,7 +72,7 @@ def signup():
         abort(405)
 
 
-@auth.route('/logout')
+@auth.route('/logout/')
 @login_required
 def logout():
     try:

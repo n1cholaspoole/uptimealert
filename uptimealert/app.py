@@ -82,6 +82,9 @@ def create_app() -> Flask:
     from admin import admin as admin_blueprint
     app.register_blueprint(admin_blueprint)
 
+    from dash import dash as dash_blueprint
+    app.register_blueprint(dash_blueprint)
+
     @app.cli.command('reset-db')
     def reset_db():
         with app.app_context():

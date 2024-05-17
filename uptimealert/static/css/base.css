@@ -9,3 +9,7 @@
 .box {
   background-color: #111111;
 }
+
+.has-background-gray {
+    background-color: #333333;
+}

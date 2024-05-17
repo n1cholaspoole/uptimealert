@@ -1,0 +1,36 @@
+{% block dashboard_add_monitor_modal %}
+<div id="dashboard-add-monitor-modal" class="modal">
+  <div class="modal-background"></div>
+  <div class="modal-content">
+    <div class="box">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div id="modal-notification" class="notification is-danger">
+                    {{ messages[0] }}
+                </div>
+            {% endif %}
+        {% endwith %}
+        <form method="POST" action="{{ url_for('dash.dashboards_monitor_add') }}">
+            <input type="hidden" id="dashboard_id" name="dashboard_id" value="">
+            <div class="field level-left has-text-left">
+                <div class="control">
+                    <p>Select monitor to add</p>
+                    <div class="select is-medium">
+                        <label>
+                            <select id="monitor_id" name="monitor_id">
+                                {% for monitor in user_monitors %}
+                                <option value="{{ monitor.id }}">{{ monitor.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <button class="button is-block is-info is-large">Add monitor</button>
+        </form>
+    </div>
+  </div>
+
+  <button class="modal-close is-large" aria-label="close"></button>
+</div>
+{% endblock %}

@@ -1,9 +1,6 @@
 {% extends "/base.html" %}
 
 {% block header %}
-<script src="{{ url_for('static', filename='js/modal.js') }}"></script>
-<script src="{{ url_for('static', filename='js/range.js') }}" defer></script>
-<script src="{{ url_for('static', filename='js/option_hide.js') }}" defer></script>
 {% endblock %}
 
 {% block content %}
@@ -15,110 +12,30 @@
 <div class="block">
 {% for monitor in user_monitors %}
     <div class="box">
-        <form method="POST" action="{{ url_for('main.monitors') + "/" + monitor.id|string + "/delete" }}">
+        <form method="POST" action="{{ url_for('main.monitors_delete', monitor_id=monitor.id) }}">
             <div class="grid">
-                    <div class="cell">
-                        <a class="" href="{{ url_for('main.monitors') + "/" + monitor.id|string }}">{{ monitor.name }}</a>
-                    </div>
-                    <div class="cell">
-                        {% if monitor.status %}
-                            <p class="">Status: Up</p>
-                        {% elif monitor.status == None %}
-                            <p class="">Status: Yet unknown</p>
-                        {% else %}
-                            <p class="">Status: Down</p>
-                        {% endif %}
-                    </div>
-                    <div class="cell">
-                        <p class="">Last Checked: {% if monitor.last_checked_at %}{{ monitor.last_checked_at.strftime("%d-%m-%Y %H:%M") }} {% else %} Not yet {% endif %}</p>
-                    </div>
-                    <div class="cell is-col- has-text-right">
-                        <button class="button is-danger is-small">Delete</button>
-                    </div>
+                <div class="cell">
+                    <a class="" href="{{ url_for('main.monitor', monitor_id=monitor.id) }}">{{ monitor.name }}</a>
+                </div>
+                <div class="cell">
+                    {% if monitor.status %}
+                        <p class="">Status: Up</p>
+                    {% elif monitor.status == None %}
+                        <p class="">Status: Yet unknown</p>
+                    {% else %}
+                        <p class="">Status: Down</p>
+                    {% endif %}
+                </div>
+                <div class="cell">
+                    <p class="">Last Checked: {% if monitor.last_checked_at %}{{ monitor.last_checked_at.strftime("%d-%m-%Y %H:%M") }} {% else %} Not yet {% endif %}</p>
+                </div>
+                <div class="cell has-text-right">
+                    <button class="button is-danger is-small">Delete</button>
+                </div>
             </div>
         </form>
     </div>
 {% endfor %}
 </div>
-<div id="monitor-add-modal" class="modal">
-  <div class="modal-background"></div>
-
-  <div class="modal-content">
-    <div class="box">
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <div id="modal-notification" class="notification is-danger">
-                    {{ messages[0] }}
-                </div>
-            {% endif %}
-        {% endwith %}
-        <form method="POST" action="{{ url_for('main.monitors') }}">
-            <div class="field">
-                <div class="control">
-                    <label>
-                        <input class="input is-large" required type="text" name="name" placeholder="Friendly name" maxlength="50" autofocus="">
-                    </label>
-                </div>
-            </div>
-
-            <div class="field level-left has-text-left">
-                <div class="control">
-                    <p>Type</p>
-                    <div class="select is-medium">
-                        <label>
-                            <select id="type" name="type">
-                                <option value="ping">PING</option>
-                                <option value="port">PORT</option>
-                                <option value="http">HTTP</option>
-                            </select>
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="field">
-                <div class="control is-flex is-justify-content-space-between">
-                    <div id="schema-container" class="select is-large is-hidden">
-                        <label>
-                            <select id="schema" name="schema">
-                                <option value="https://">https://</option>
-                                <option value="http://">http://</option>
-                            </select>
-                        </label>
-                    </div>
-                    <label for="hostname">
-                        <input id="hostname" class="input is-large" required type="text" name="hostname" placeholder="Hostname" maxlength="100" autofocus="">
-                    </label>
-                    <div id="port-container" class="is-hidden">
-                        <label for="port">
-                            <input id="port" class="input is-large" type="number" name="port" placeholder="Port" min="0" max="65535" autofocus="">
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="field has-text-left">
-                <div class="control">
-                    <p>Checking interval (minutes): <span id="interval_value">10</span></p>
-                    <label for="interval">
-                        <input id="interval" class="input is-large" required type="range" name="interval" min="1" max="60" value="10" autofocus="">
-                    </label>
-                </div>
-            </div>
-
-            <div class="field has-text-left">
-                <div class="control">
-                    <p>Failure threshold (times): <span id="threshold_value">3</span></p>
-                    <label for="threshold">
-                        <input id="threshold" class="input is-large" required type="range" name="threshold" min="1" max="10" value="3" autofocus="">
-                    </label>
-                </div>
-            </div>
-            <button class="button is-block is-info is-large">Add monitor</button>
-        </form>
-    </div>
-  </div>
-
-  <button class="modal-close is-large" aria-label="close"></button>
-</div>
+{% include '/main/modals/add_monitor_modal.html' %}
 {% endblock %}

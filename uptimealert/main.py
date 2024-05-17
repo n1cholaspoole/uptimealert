@@ -1,7 +1,7 @@
-from wtforms import Form, StringField, SelectField, IntegerRangeField, IntegerField, validators
 from flask import Blueprint, render_template, abort, request, flash, url_for, redirect
 from flask_login import current_user, login_required
 from models import Monitor, Incident
+from forms import MonitorForm
 from jinja2 import TemplateNotFound
 from app import db
 from datetime import datetime
@@ -9,47 +9,18 @@ from datetime import datetime
 main = Blueprint('main', __name__, template_folder='templates')
 
 
-class MonitorForm(Form):
-    name = StringField('Friendly name', [validators.Length(max=50)])
-    type = SelectField('Type', choices=[('ping', 'PING'), ('port', 'PORT'), ('http', 'HTTP')])
-    schema = SelectField('Schema', choices=[('https://', 'https://'), ('http://', 'http://')],
-                         validators=[validators.Optional()])
-    hostname = StringField('Hostname', [validators.Length(max=100)])
-    port = IntegerField('Port', [validators.Optional(),
-                                 validators.NumberRange(0, 65535)])
-    interval = IntegerRangeField('Interval', [validators.NumberRange(1, 60)])
-    threshold = IntegerRangeField('Threshold', [validators.NumberRange(1, 10)])
-
-    def validate(self):
-        if not super(MonitorForm, self).validate():
-            return False
-        if self.type.data == "http" and self.schema.data is None:
-            self.schema.errors.append("Schema is required.")
-            return False
-        elif self.type.data == "port" and self.port.data is None:
-            self.port.errors.append("Port is required.")
-            return False
-        return True
-
-
 @main.route('/')
 def index():
     return render_template('/main/index.html')
 
 
-@main.route('/profile')
+@main.route('/profile/')
 @login_required
 def profile():
     return render_template('/main/profile.html', username=current_user.username)
 
 
-@main.route('/dash')
-@login_required
-def dashboard():
-    return render_template('/main/dashboard.html')
-
-
-@main.route('/monitors', methods=['GET', 'POST'])
+@main.route('/monitors/', methods=['GET', 'POST'])
 @login_required
 def monitors():
     form = MonitorForm(request.form)
@@ -65,7 +36,6 @@ def monitors():
     elif request.method == 'POST':
         if form.validate():
             try:
-
                 monitor = Monitor.query.filter_by(name=form.name.data.strip()).first()
 
                 if monitor and monitor.user_id is current_user.id:
@@ -95,13 +65,13 @@ def monitors():
         abort(405)
 
 
-@main.route('/monitors/<int:monitor_id>/delete', methods=['POST'])
+@main.route('/monitors/<int:monitor_id>/delete/', methods=['POST'])
 @login_required
 def monitors_delete(monitor_id):
     if request.method == 'POST':
-        user_monitor = Monitor.query.filter_by(id=monitor_id).first()
+        user_monitor = Monitor.query.filter_by(id=monitor_id, user_id=current_user.id).first()
 
-        if monitor_id and user_monitor.user_id is current_user.id:
+        if monitor_id:
             db.session.delete(user_monitor)
             db.session.commit()
             db.session.close()
@@ -111,16 +81,16 @@ def monitors_delete(monitor_id):
         abort(405)
 
 
-@main.route('/monitors/<int:monitor_id>', methods=['GET'])
+@main.route('/monitors/<int:monitor_id>/', methods=['GET'])
 @login_required
-def monitors_id(monitor_id):
+def monitor(monitor_id):
     if request.method == 'GET':
         try:
-            user_monitor = Monitor.query.filter_by(id=monitor_id).first()
+            user_monitor = Monitor.query.filter_by(id=monitor_id, user_id=current_user.id).first()
             monitors_incidents = Incident.query.filter_by(monitor_id=monitor_id).all()
             db.session.close()
 
-            if user_monitor.user_id is not current_user.id:
+            if not user_monitor:
                 return redirect(url_for('main.monitors'))
 
             return render_template('/main/monitor.html',

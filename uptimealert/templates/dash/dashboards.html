@@ -1,0 +1,52 @@
+{% extends "/base.html" %}
+
+{% block header %}
+<script src="{{ url_for('static', filename='js/modal.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="block">
+        <button class="has-text-black js-modal-trigger button is-block is-info is-large is-fullwidth" data-target="dashboard-add-modal">
+            Add status page
+        </button>
+    </div>
+<div class="block">
+{% for dashboard in user_dashboards %}
+    <div class="box has-background-gray">
+        <form method="POST" action="{{ url_for('dash.dashboards_delete', dashboard_id=dashboard.id) }}">
+            <div class="grid">
+                    <div class="cell has-text-left">
+                        <a class="has-text-white title" href="{{ url_for('dash.dashboards') + dashboard.id|string }}">{{ dashboard.name }}</a>
+                    </div>
+                    <div class="cell">
+                        <a class="link has-text-center" href="{{ url_for('dash.dashboard', dashboard_id=dashboard.id) }}">{{ url_for('dash.dashboard', dashboard_id=dashboard.id) }}</a>
+                    </div>
+                    <div class="cell has-text-right">
+                        <button class="button is-small js-modal-trigger" type="button" data-target="dashboard-add-monitor-modal" data-value="{{ dashboard.id|string }}">Add monitor</button>
+                        <button class="button is-danger is-small">Delete</button>
+                    </div>
+            </div>
+            {% if dashboard.monitors %}
+                <div class="spacer"></div>
+            {% endif %}
+        </form>
+    {% for monitor in dashboard.monitors %}
+        <div class="box">
+            <form method="POST" action="{{ url_for('dash.dashboards_monitor_delete', dashboard_id=dashboard.id, monitor_id=monitor.monitor.id) }}">
+                <div class="grid">
+                    <div class="cell">
+                        <a class="has-text-white subtitle" href="{{ url_for('main.monitor', monitor_id=monitor.monitor.id ) }}">{{ monitor.monitor.name }}</a>
+                    </div>
+                    <div class="cell has-text-right">
+                        <button class="button is-danger is-small" type="submit">Delete</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    {% endfor %}
+    </div>
+{% endfor %}
+</div>
+{% include "/dash/modals/add_dashboard_modal.html" %}
+{% include "/dash/modals/dashboard_add_monitor_modal.html" %}
+{% endblock %}

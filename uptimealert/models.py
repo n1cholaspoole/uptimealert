@@ -26,8 +26,9 @@ class Monitor(db.Model):
     failed_times = db.Column(db.Integer, default=0)
     status = db.Column(db.Boolean)
 
-    user = db.relationship('User', foreign_keys='Monitor.user_id')
+    user = db.relationship("User", foreign_keys="Monitor.user_id")
     incidents = db.relationship("Incident", cascade="all, delete", back_populates="monitor")
+    dashboards = db.relationship('DashboardMonitor', cascade="all, delete", back_populates='monitor')
 
 
 class Incident(db.Model):
@@ -38,4 +39,24 @@ class Incident(db.Model):
     resolved_at = db.Column(db.DateTime)
     caused_by = db.Column(db.String(150))
 
-    monitor = db.relationship('Monitor', back_populates="incidents", foreign_keys='Incident.monitor_id')
+    monitor = db.relationship("Monitor", back_populates="incidents", foreign_keys='Incident.monitor_id')
+
+
+class Dashboard(db.Model):
+    __tablename__ = "dashboards"
+    id = db.Column(db.Integer, primary_key=True, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey(User.id))
+    name = db.Column(db.String(150))
+
+    monitors = db.relationship('DashboardMonitor', cascade="all, delete", back_populates='dashboard')
+    user = db.relationship("User", foreign_keys="Dashboard.user_id")
+
+
+class DashboardMonitor(db.Model):
+    __tablename__ = "dashboards_monitors"
+    id = db.Column(db.Integer, primary_key=True, index=True)
+    monitor_id = db.Column(db.Integer, db.ForeignKey('monitors.id'))
+    dashboard_id = db.Column(db.Integer, db.ForeignKey('dashboards.id'))
+
+    dashboard = db.relationship('Dashboard', back_populates='monitors')
+    monitor = db.relationship('Monitor', back_populates='dashboards')

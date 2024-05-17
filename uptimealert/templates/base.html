@@ -8,6 +8,7 @@
     <title>UptimeAlert!</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/1.0.0/css/bulma.min.css" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <script src="{{ url_for('static', filename='js/burger-menu.js') }}"></script>
     {% block header %}
     {% endblock %}
 </head>
@@ -17,26 +18,23 @@
         <div class="hero-head">
             <nav class="navbar">
                 <div class="container">
+                    <div class="navbar-brand">
+                        <span class="navbar-burger burger" data-target="navbarMenuHeroA">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </span>
+                    </div>
+
                     <div id="navbarMenuHeroA" class="navbar-menu">
                         <div class="navbar-end">
-                            <a href="{{ url_for('main.index') }}" class="navbar-item">
-                                Home
-                            </a>
-                            <a href="{{ url_for('main.dashboard') }}" class="navbar-item">
-                                Dashboard
-                            </a>
-                            <a href="{{ url_for('main.monitors') }}" class="navbar-item">
-                                Monitors
-                            </a>
-                            <a href="{{ url_for('main.profile') }}" class="navbar-item">
-                                Profile
-                            </a>
-                            <a href="{{ url_for('auth.login') }}" class="navbar-item">
-                                Login
-                            </a>
-                            <a href="{{ url_for('auth.logout') }}" class="navbar-item">
-                                Logout
-                            </a>
+                            <a href="{{ url_for('main.index') }}" class="navbar-item">Home</a>
+                            <a href="{{ url_for('dash.dashboards') }}" class="navbar-item">Dashboard</a>
+                            <a href="{{ url_for('main.monitors') }}" class="navbar-item">Monitors</a>
+                            <a href="{{ url_for('main.profile') }}" class="navbar-item">Profile</a>
+                            <a href="{{ url_for('auth.login') }}" class="navbar-item">Login</a>
+                            <a href="{{ url_for('auth.logout') }}" class="navbar-item">Logout</a>
                         </div>
                     </div>
                 </div>
