@@ -4,7 +4,6 @@ from models import Dashboard, Monitor, DashboardMonitor
 from forms import DashForm, DashMonitorForm
 from jinja2 import TemplateNotFound
 from app import db
-from schemas import MonitorSchema
 
 dash = Blueprint('dash', __name__, template_folder='templates')
 
