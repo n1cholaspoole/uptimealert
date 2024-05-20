@@ -29,7 +29,7 @@ function updateTimer() {
             return titles[(number % 100 > 4 && number % 100 < 20) ? 2 : cases[(number % 10 < 5) ? number % 10 : 5]];
         }
 
-        let text = "Следующее обновление через " + remainingSeconds + " " + getDeclension(remainingSeconds, ['секунду', 'секунды', 'секунд']) + ".";
+        let text = `Следующее обновление через ${remainingSeconds} ${getDeclension(remainingSeconds, ['секунду', 'секунды', 'секунд'])}.`;
         $('#timer').text(text);
 
         if (seconds <= 0) {

@@ -10,9 +10,9 @@ function getDeclension(number, titles) {
 }
 
 interval_input.addEventListener("input", (event) => {
-  interval_value.textContent = event.target.value + getDeclension(event.target.value, [" минута"," минуты"," минут"]);
+  interval_value.textContent = `${event.target.value} ${getDeclension(event.target.value, ["минута","минуты","минут"])}.`;
 });
 
 threshold_input.addEventListener("input", (event) => {
-  threshold_value.textContent = event.target.value + getDeclension(event.target.value, [" раз"," раза"," раз"]);
+  threshold_value.textContent = `${event.target.value} ${getDeclension(event.target.value, ["раз","раза","раз"])}.`;
 });
