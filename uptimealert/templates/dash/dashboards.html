@@ -19,7 +19,7 @@
                     <div class="cell has-text-left-desktop">
                         <a class="has-text-white title" href="{{ url_for('dash.dashboards') + dashboard.id|string }}">{{ dashboard.name }}</a>
                     </div>
-                    <div class="cell">
+                    <div class="cell is-flex is-align-items-center is-justify-content-center">
                         <a class="link has-text-center" href="{{ url_for('dash.dashboard', dashboard_id=dashboard.id) }}">{{ url_for('dash.dashboard', dashboard_id=dashboard.id) }}</a>
                     </div>
                     <div class="columns is-mobile is-vcentered">

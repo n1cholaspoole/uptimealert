@@ -136,10 +136,10 @@ def monitors_share():
 def monitors_share_delete(share_id, monitor_id):
     if request.method == 'POST':
         share = ((db.session.query(SharedMonitor).join(Monitor, Monitor.id == SharedMonitor.monitor_id)
-         .filter(SharedMonitor.id == share_id)
-         .filter((Monitor.user_id == current_user.id) | (SharedMonitor.shared_user_id == current_user.id))
-         .options(db.joinedload(SharedMonitor.monitor))
-         .first()))
+                  .filter(SharedMonitor.id == share_id)
+                  .filter((Monitor.user_id == current_user.id) | (SharedMonitor.shared_user_id == current_user.id))
+                  .options(db.joinedload(SharedMonitor.monitor))
+                  .first()))
 
         if not share:
             print("SharedMonitor not found or access denied")
