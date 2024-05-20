@@ -1,0 +1,99 @@
+{% extends "/base.html" %}
+
+{% block header %}
+<script src="{{ url_for('static', filename='js/field_hide.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/modal.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="block">
+    <div class="box">
+        <div class="fixed-grid has-3-cols has-1-cols-mobile">
+            <div class="grid">
+                <div class="cell">
+                    <p class="has-text-white title">{{ user_monitor.name }}</p>
+                </div>
+                <div class="cell">
+                    <p class="has-text-white title"> {{ user_monitor.type|upper }}</p>
+                </div>
+                <div class="cell">
+                    {% if user_monitor.disabled %}
+                        <p class="has-text-white title">Отключен</p>
+                    {% elif user_monitor.status %}
+                        <p class="has-text-white title">Доступен</p>
+                    {% elif user_monitor.status == False %}
+                        <p class="has-text-white title">Недоступен</p>
+                    {% elif user_monitor.status == None %}
+                        <p class="has-text-white title">Пока неизвестно</p>
+                    {% endif %}
+                </div>
+                {% if user_monitor.type == 'ping' %}
+                    <div class="cell">
+                        <p class="">Имя хоста: {{ user_monitor.hostname }}</p>
+                    </div>
+                {% elif user_monitor.type == 'http' %}
+                    <div class="cell">
+                        <p class="">URL-адрес: {{ user_monitor.schema|string + user_monitor.hostname|string }}</p>
+                    </div>
+                {% elif user_monitor.type == 'port' %}
+                    <div class="cell">
+                        <p class="">Имя хоста: {{ user_monitor.hostname|string + ":" + user_monitor.port|string }}</p>
+                    </div>
+                {% endif %}
+                <div class="cell">
+                    <p class="">Интервал проверки (минут): {{ user_monitor.interval }}</p>
+                </div>
+                <div class="cell">
+                    <p class="">Порог отказа (раз): {{ user_monitor.threshold }}</p>
+                </div>
+                <div class="cell">
+                    <p class="">Создано в: {% if user_monitor.created_at %} {{ user_monitor.created_at.strftime("%d-%m-%Y %H:%M") }} {% else %} Пока не было {% endif %}</p>
+                </div>
+                <div class="cell">
+                    <p class="">Последняя проверка: {% if user_monitor.last_checked_at %} {{ user_monitor.last_checked_at.strftime("%d-%m-%Y %H:%M") }} {% else %} Пока не было {% endif %}</p>
+                </div>
+                <div class="cell">
+                    <button class="button is-small js-modal-trigger" type="button" data-target="share-monitor-modal" data-value="{{ user_monitor.id|string }}">Поделиться</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="block">
+    <div id="shares" class="box hide_empty is-hidden">
+        {% for share in user_monitor.shared_users %}
+            <div class="grid">
+                <div class="cell">
+                    <p>{{ share.shared_user.email }}</p>
+                </div>
+                <div class="cell">
+                    <p>Создано в: {{ share.shared_at.strftime("%d-%m-%Y %H:%M") }}</p>
+                </div>
+                <div class="cell has-text-right">
+                    <form id="{{ share.shared_user.id }}_delete_form" method="POST" action="{{ url_for('mnts.monitors_share_delete', monitor_id=user_monitor.id, share_id=share.id) }}">
+                        <button class="button is-danger is-small" type="submit" form="{{ share.shared_user.id }}_delete_form">Отозвать доступ</button>
+                    </form>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+<div class="block">
+    <div id="incidents" class="box hide_empty is-hidden">
+        {% for incident in user_monitor.incidents %}
+            <div class="grid">
+                <div class="cell">
+                    <p>Зафиксировано падение!</p>
+                </div>
+                <div class="cell">
+                    <p>Создано в: {% if incident.created_at %} {{ incident.created_at.strftime("%d-%m-%Y %H:%M") }} {% else %} Пока не было {% endif %}</p>
+                </div>
+                <div class="cell">
+                    <p>Решено в: {% if incident.resolved_at %} {{ incident.resolved_at.strftime("%d-%m-%Y %H:%M") }} {% else %} Пока не было {% endif %}</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% include "/mnts/modals/share_monitor_modal.html" %}
+{% endblock %}

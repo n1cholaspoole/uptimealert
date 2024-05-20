@@ -3,15 +3,17 @@
   <div class="modal-background"></div>
   <div class="modal-content">
     <div class="box">
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <div id="modal-notification" class="notification is-danger">
-                    {{ messages[0] }}
-                </div>
-            {% endif %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                {% if category == 'monitor' %}
+                    <div id="modal-notification" class="notification is-danger">
+                        {{ message }}
+                    </div>
+                {% endif %}
+            {% endfor %}
         {% endwith %}
         <form method="POST" action="{{ url_for('dash.dashboards_monitor_add') }}">
-            <input type="hidden" id="dashboard_id" name="dashboard_id" value="">
+            <input type="hidden" id="hidden_id" name="dashboard_id" value="">
             <div class="field level-left has-text-left">
                 <div class="control">
                     <p>Выберите монитор</p>

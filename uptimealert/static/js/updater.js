@@ -8,13 +8,14 @@ function updateContent() {
         type: 'GET',
         success: function(data) {
             $('#monitors').html(data);
+            console.log('Updated content loaded');
+            resetTimer();
+            failCheck();
         },
         error: function(xhr, status, error) {
             console.error('Error fetching updated content:', error);
         }
     });
-    resetTimer();
-    failCheck();
 }
 
 function updateTimer() {
@@ -45,7 +46,7 @@ function resetTimer() {
 function failCheck() {
     let anyDown = false;
     $('.status').each(function() {
-        if ($(this)[0].innerText === "Состояние: Недоступен") {
+        if ($(this).text() === "Состояние: Недоступен") {
             anyDown = true;
             return false;
         }
@@ -57,7 +58,7 @@ function failCheck() {
         $('.hero').removeClass('has-background-danger-dark').addClass('is-primary');
     }
 
-    return anyDown
+    return anyDown;
 }
 
 setInterval(updateContent, 60000);

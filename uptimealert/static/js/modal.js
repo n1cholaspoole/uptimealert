@@ -3,11 +3,11 @@ function openModal($el, $trigger) {
     $el.classList.add('is-active');
     const dataValue = $trigger.dataset.value;
     if (dataValue) {
-        const hiddenInput = document.getElementById('dashboard_id');
+        const hiddenInput = document.getElementById('hidden_id');
         if (hiddenInput) {
             hiddenInput.value = dataValue;
         } else {
-            console.error("Hidden input element with id 'dashboard_id' not found!");
+            console.error("Hidden input element hidden_id not found!");
         }
     }
 }
@@ -30,9 +30,8 @@ function openModal($el, $trigger) {
         openModal($target, event.target);
     });
 
-    if (document.querySelector('#modal-notification')) {
-        openModal($target, $trigger);
-    }
+    const notify_modal = document.querySelector('#modal-notification');
+    if(notify_modal) openModal(notify_modal.closest('.modal'), $trigger);
 });
 
   (document.querySelectorAll('.modal-background, .modal-close, .modal-card-head .delete, .modal-card-foot .button') || []).forEach(($close) => {

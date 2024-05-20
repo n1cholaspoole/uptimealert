@@ -1,0 +1,32 @@
+{% block share_monitor_modal %}
+<div id="share-monitor-modal" class="modal">
+  <div class="modal-background"></div>
+  <div class="modal-content">
+    <div class="box">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                {% if category == 'share' %}
+                    <div id="modal-notification" class="notification is-danger">
+                        {{ message }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endwith %}
+        <form method="POST" action="{{ url_for('mnts.monitors_share') }}">
+            <input type="hidden" id="hidden_id" name="hidden_id" value="">
+            <div class="field level-left has-text-left">
+                <div class="control">
+                    <p>Введите электронную почту пользователя:</p>
+                    <label>
+                        <input class="input is-large" required type="text" name="email" placeholder="Электронная почта" minlength="5" maxlength="50" autofocus="">
+                    </label>
+                </div>
+            </div>
+            <button class="button is-block is-info is-large">Поделиться монитором</button>
+        </form>
+    </div>
+  </div>
+
+  <button class="modal-close is-large" aria-label="close"></button>
+</div>
+{% endblock %}

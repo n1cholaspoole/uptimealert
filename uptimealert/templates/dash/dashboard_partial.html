@@ -1,23 +1,59 @@
-{% for monitor in user_dashboard_monitors %}
-<div class="block">
-    <div class="box">
-            <div class="grid">
-                    <div class="cell">
-                        <a class="is-link" href="{{ url_for('main.monitors') + monitor.id|string }}">{{ monitor.name }}</a>
+{% if user_dashboard_monitors %}
+    <div class="block">
+        {% for monitor in user_dashboard_monitors %}
+            <div class="box">
+                <div class="fixed-grid has-3-cols has-1-cols-mobile">
+                    <div class="grid">
+                            <div class="cell">
+                                <a class="is-link" href="{{ url_for('mnts.monitor', monitor_id=monitor.id) }}">{{ monitor.name }}</a>
+                            </div>
+                            <div class="cell">
+                                <p class="">Последняя проверка: {% if monitor.last_checked_at %}{{ monitor.last_checked_at.strftime("%d-%m-%Y %H:%M") }} {% else %} Пока не было {% endif %}</p>
+                            </div>
+                            <div class="cell">
+                                {% if monitor.disabled %}
+                                    <p class="status">Состояние: Отключен</p>
+                                {% elif monitor.status %}
+                                    <p class="status">Состояние: Доступен</p>
+                                {% elif monitor.status == False %}
+                                    <p class="status">Состояние: Недоступен</p>
+                                {% elif monitor.status == None %}
+                                    <p class="status">Состояние: Пока неизвестно</p>
+                                {% endif %}
+                            </div>
                     </div>
-                    <div class="cell">
-                        <p class="">Последняя проверка: {% if monitor.last_checked_at %}{{ monitor.last_checked_at.strftime("%d-%m-%Y %H:%M") }} {% else %} Пока не было {% endif %}</p>
-                    </div>
-                    <div class="cell">
-                        {% if monitor.status %}
-                            <p class="status">Состояние: Доступен</p>
-                        {% elif monitor.status == None %}
-                            <p class="status">Состояние: Пока неизвестно</p>
-                        {% else %}
-                            <p class="status">Состояние: Недоступен</p>
-                        {% endif %}
-                    </div>
+                </div>
             </div>
+        {% endfor %}
     </div>
-</div>
-{% endfor %}
+{% endif %}
+{% if shared_dashboard_monitors %}
+    <div class="block">
+        <p class="has-text-white has-text-left">Сторонние мониторы:</p>
+        {% for monitor in shared_dashboard_monitors %}
+            <div class="box">
+                <div class="fixed-grid has-3-cols has-1-cols-mobile">
+                    <div class="grid">
+                            <div class="cell">
+                                <a class="is-link" href="{{ url_for('mnts.monitor_shared', monitor_id=monitor.id) }}">{{ monitor.name }}</a>
+                            </div>
+                            <div class="cell">
+                                <p class="">Последняя проверка: {% if monitor.last_checked_at %}{{ monitor.last_checked_at.strftime("%d-%m-%Y %H:%M") }} {% else %} Пока не было {% endif %}</p>
+                            </div>
+                            <div class="cell">
+                                {% if monitor.disabled %}
+                                    <p class="status">Состояние: Отключен</p>
+                                {% elif monitor.status %}
+                                    <p class="status">Состояние: Доступен</p>
+                                {% elif monitor.status == False %}
+                                    <p class="status">Состояние: Недоступен</p>
+                                {% elif monitor.status == None %}
+                                    <p class="status">Состояние: Пока неизвестно</p>
+                                {% endif %}
+                            </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}

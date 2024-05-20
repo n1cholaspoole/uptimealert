@@ -1,5 +1,7 @@
-let incidents = document.getElementById('incidents')
+let elements = document.getElementsByClassName('hide_empty')
 
-if (incidents.innerText === "") {
-    incidents.classList.remove('is-hidden')
+for (let element of elements) {
+    if (element.textContent.trim() !== '') {
+        element.classList.remove('is-hidden')
+    }
 }

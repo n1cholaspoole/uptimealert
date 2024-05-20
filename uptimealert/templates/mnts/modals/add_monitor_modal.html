@@ -7,14 +7,16 @@
   <div class="modal-background"></div>
   <div class="modal-content">
     <div class="box">
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <div id="modal-notification" class="notification is-danger">
-                    {{ messages[0] }}
-                </div>
-            {% endif %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                {% if category == 'monitor' %}
+                    <div id="modal-notification" class="notification is-danger">
+                        {{ message }}
+                    </div>
+                {% endif %}
+            {% endfor %}
         {% endwith %}
-        <form method="POST" action="{{ url_for('main.monitors') }}">
+        <form method="POST" action="{{ url_for('mnts.monitors') }}">
             <div class="field">
                 <div class="control">
                     <label>
@@ -39,8 +41,8 @@
             </div>
 
             <div class="field">
-                <div class="control is-flex is-justify-content-space-between">
-                    <div id="schema-container" class="select is-large is-hidden">
+                <div class="control is-flex">
+                    <div id="schema-container" class="select is-large is-flex-grow-0 is-hidden">
                         <label>
                             <select id="schema" name="schema">
                                 <option value="https://">https://</option>
@@ -48,10 +50,12 @@
                             </select>
                         </label>
                     </div>
-                    <label for="hostname">
-                        <input id="hostname" class="input is-large" required type="text" name="hostname" placeholder="Имя хоста" maxlength="100" autofocus="">
-                    </label>
-                    <div id="port-container" class="is-hidden">
+                    <div class="is-flex-grow-2">
+                        <label for="hostname">
+                            <input id="hostname" class="input is-large is-flex-grow-1" required type="text" name="hostname" placeholder="Имя хоста" maxlength="100" autofocus="">
+                        </label>
+                    </div>
+                    <div id="port-container" class="is-flex-grow-0 is-hidden">
                         <label for="port">
                             <input id="port" class="input is-large" type="number" name="port" placeholder="Порт" min="0" max="65535" autofocus="">
                         </label>

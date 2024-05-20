@@ -1,0 +1,91 @@
+{% extends "/base.html" %}
+
+{% block header %}
+    <script src="{{ url_for('static', filename='js/field_hide.js') }}" defer></script>
+{% endblock %}
+
+{% block content %}
+    <div class="block">
+        <button class="has-text-black js-modal-trigger button is-block is-info is-large is-fullwidth" data-target="monitor-add-modal">
+            Добавить монитор
+        </button>
+    </div>
+<div class="block">
+{% for monitor in user_monitors %}
+    <div class="box">
+        <div class="fixed-grid has-4-cols has-1-cols-mobile">
+            <div class="grid">
+                <div class="cell is-flex is-justify-content-center is-align-items-center">
+                    <a class="" href="{{ url_for('mnts.monitor', monitor_id=monitor.id) }}">{{ monitor.name }}</a>
+                </div>
+                <div class="cell is-flex is-justify-content-center is-align-items-center">
+                    <p class="">Последняя проверка: {% if monitor.last_checked_at %}{{ monitor.last_checked_at.strftime("%d-%m-%Y %H:%M") }} {% else %} Пока не было {% endif %}</p>
+                </div>
+                <div class="cell is-flex is-justify-content-center is-align-items-center">
+                    {% if monitor.disabled %}
+                        <p class="">Состояние: Отключен</p>
+                    {% elif monitor.status %}
+                        <p class="">Состояние: Доступен</p>
+                    {% elif monitor.status == False %}
+                        <p class="">Состояние: Недоступен</p>
+                    {% elif monitor.status == None %}
+                        <p class="">Состояние: Пока неизвестно</p>
+                    {% endif %}
+                </div>
+                <div class="cell">
+                    <div class="columns is-mobile is-vcentered">
+                        <div class="column is-flex-grow-1-desktop is-hidden-mobile"></div>
+                        <div class="column is-flex-grow-0-desktop is-flex-grow-1-mobile">
+                            <form id="{{ monitor.id }}_toggle_form" method="POST" action="{{ url_for('mnts.monitors_toggle', monitor_id=monitor.id) }}">
+                                {% if monitor.disabled %}
+                                    <button class="button is-success is-small" type="submit" form="{{ monitor.id }}_toggle_form">Включить</button>
+                                {% else %}
+                                    <button class="button is-warning is-small" type="submit" form="{{ monitor.id }}_toggle_form">Отключить</button>
+                                {% endif %}
+                            </form>
+                        </div>
+                        <div class="column is-flex-grow-0-desktop is-flex-grow-1-mobile">
+                            <form id="{{ monitor.id }}_delete_form" method="POST" action="{{ url_for('mnts.monitors_delete', monitor_id=monitor.id) }}">
+                                <button class="button is-danger is-small" type="submit" form="{{ monitor.id }}_delete_form">Удалить</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endfor %}
+</div>
+{% for share in shared_monitors %}
+<p class="subtitle has-text-white has-text-left">Сторонние мониторы:</p>
+<div class="box">
+    <div class="fixed-grid has-4-cols has-1-cols-mobile">
+        <div class="grid">
+            <div class="cell is-flex is-justify-content-center is-align-items-center">
+                <a class="" href="{{ url_for('mnts.monitor_shared', monitor_id=share.monitor.id) }}">{{ share.monitor.name }}</a>
+            </div>
+            <div class="cell is-flex is-justify-content-center is-align-items-center">
+                <p class="">Последняя проверка: {% if share.monitor.last_checked_at %}{{ share.monitor.last_checked_at.strftime("%d-%m-%Y %H:%M") }} {% else %} Пока не было {% endif %}</p>
+            </div>
+            <div class="cell is-flex is-justify-content-center is-align-items-center">
+                {% if share.monitor.disabled %}
+                    <p class="status">Состояние: Отключен</p>
+                {% elif share.monitor.status %}
+                    <p class="status">Состояние: Доступен</p>
+                {% elif share.monitor.status == False %}
+                    <p class="status">Состояние: Недоступен</p>
+                {% elif share.monitor.status == None %}
+                    <p class="status">Состояние: Пока неизвестно</p>
+                {% endif %}
+            </div>
+            <div class="cell has-text-right-desktop has-text-center-mobile">
+                <form id="{{ share.id }}_delete_form" method="POST" action="{{ url_for('mnts.monitors_share_delete', monitor_id=share.monitor.id, share_id=share.id) }}">
+                    <button class="button is-danger is-small" type="submit" form="{{ share.id }}_delete_form">Отклонить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% include '/mnts/modals/add_monitor_modal.html' %}
+{% endblock %}

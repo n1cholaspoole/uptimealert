@@ -1,0 +1,78 @@
+{% extends "/base.html" %}
+
+{% block header %}
+<script src="{{ url_for('static', filename='js/field_hide.js') }}" defer></script>
+{% endblock %}
+
+{% block content %}
+<div class="block">
+    <div class="box">
+        <div class="fixed-grid has-3-cols has-1-cols-mobile">
+            <div class="grid">
+                <div class="cell">
+                    <p class="has-text-white title">{{ shared_monitor.name }}</p>
+                </div>
+                <div class="cell">
+                    <p class="has-text-white title"> {{ shared_monitor.type|upper }}</p>
+                </div>
+                <div class="cell">
+                    {% if shared_monitor.disabled %}
+                        <p class="has-text-white title">Отключен</p>
+                    {% elif shared_monitor.status %}
+                        <p class="has-text-white title">Доступен</p>
+                    {% elif shared_monitor.status == False %}
+                        <p class="has-text-white title">Недоступен</p>
+                    {% elif shared_monitor.status == None %}
+                        <p class="has-text-white title">Пока неизвестно</p>
+                    {% endif %}
+                </div>
+                {% if shared_monitor.type == 'ping' %}
+                    <div class="cell">
+                        <p class="">Имя хоста: {{ shared_monitor.hostname }}</p>
+                    </div>
+                {% elif shared_monitor.type == 'http' %}
+                    <div class="cell">
+                        <p class="">URL-адрес: {{ shared_monitor.schema|string + shared_monitor.hostname|string }}</p>
+                    </div>
+                {% elif shared_monitor.type == 'port' %}
+                    <div class="cell">
+                        <p class="">Имя хоста: {{ shared_monitor.hostname|string + ":" + shared_monitor.port|string }}</p>
+                    </div>
+                {% endif %}
+                <div class="cell">
+                    <p class="">Интервал проверки (минут): {{ shared_monitor.interval }}</p>
+                </div>
+                <div class="cell">
+                    <p class="">Порог отказа (раз): {{ shared_monitor.threshold }}</p>
+                </div>
+                <div class="cell">
+                    <p class="">Создано в: {% if shared_monitor.created_at %} {{ shared_monitor.created_at.strftime("%d-%m-%Y %H:%M") }} {% else %} Пока не было {% endif %}</p>
+                </div>
+                <div class="cell">
+                    <p class="">Последняя проверка: {% if shared_monitor.last_checked_at %} {{ shared_monitor.last_checked_at.strftime("%d-%m-%Y %H:%M") }} {% else %} Пока не было {% endif %}</p>
+                </div>
+                <div class="cell">
+                    <p class="">Владелец: {{ shared_monitor.user.email }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="block">
+    <div id="incidents" class="box hide_empty is-hidden">
+        {% for incident in shared_monitor.incidents %}
+        <div class="grid">
+            <div class="cell">
+                <p>Зафиксировано падение!</p>
+            </div>
+            <div class="cell">
+                <p>Создано в: {% if incident.created_at %} {{ incident.created_at.strftime("%d-%m-%Y %H:%M") }} {% else %} Пока не было {% endif %}</p>
+            </div>
+            <div class="cell">
+                <p>Решено в: {% if incident.resolved_at %} {{ incident.resolved_at.strftime("%d-%m-%Y %H:%M") }} {% else %} Пока не было {% endif %}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
