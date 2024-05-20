@@ -29,7 +29,7 @@ def profile_change_email():
             if user:
                 flash('Аккаунт с такой электронной почтой уже существует.', 'email')
             else:
-                User.query.filter_by(id=current_user.id).update({User.username: form.email.data})
+                User.query.filter_by(id=current_user.id).update({User.email: form.email.data})
                 db.session.commit()
                 db.session.close()
         else:
