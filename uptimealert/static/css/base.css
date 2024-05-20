@@ -13,3 +13,10 @@
 .has-background-gray {
     background-color: #333333;
 }
+
+.button.is-wrap {
+  white-space: normal;
+  word-wrap: break-word;
+  display: inline-block;
+  text-align: center;
+}
