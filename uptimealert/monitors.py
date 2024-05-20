@@ -6,7 +6,6 @@ from jinja2 import TemplateNotFound
 from app import db
 from datetime import datetime
 
-
 mnts = Blueprint('mnts', __name__, template_folder='templates')
 
 
@@ -56,7 +55,7 @@ def monitors():
         else:
             flash("Ошибка валидации формы.")
             print(form.errors)
-        return render_template('/mnts/monitors.html', form=form)
+        return redirect(url_for('mnts.monitors'))
     else:
         abort(405)
 
@@ -107,7 +106,7 @@ def monitors_share():
             monitor = Monitor.query.filter_by(id=form.hidden_id.data, user_id=current_user.id).first()
 
             if not user:
-                flash('Пользователя с таким адресом электронной почты не существует', 'share')
+                flash('Пользователя с таким адресом электронной почты не существует.', 'share')
             elif user.email is current_user.email:
                 flash('Поделитесь с кем-нибудь другим.', 'share')
             else:
@@ -127,6 +126,7 @@ def monitors_share():
         else:
             flash("Ошибка валидации формы.")
             print(form.errors)
+        return redirect(url_for('mnts.monitors'))
     else:
         abort(405)
 
@@ -135,9 +135,23 @@ def monitors_share():
 @login_required
 def monitors_share_delete(share_id, monitor_id):
     if request.method == 'POST':
-        share = (db.session.query(SharedMonitor).options(db.joinedload(SharedMonitor.monitor))
-                 .filter(SharedMonitor.id == share_id,
-                         Monitor.user_id == current_user.id or SharedMonitor.shared_user_id == current_user.id).first())
+        share = ((db.session.query(SharedMonitor).join(Monitor, Monitor.id == SharedMonitor.monitor_id)
+         .filter(SharedMonitor.id == share_id)
+         .filter((Monitor.user_id == current_user.id) | (SharedMonitor.shared_user_id == current_user.id))
+         .options(db.joinedload(SharedMonitor.monitor))
+         .first()))
+
+        if not share:
+            print("SharedMonitor not found or access denied")
+        else:
+            print("SharedMonitor retrieved:", share)
+
+        if share:
+            db.session.delete(share)
+            db.session.commit()
+            print("SharedMonitor deleted successfully")
+        else:
+            print("No SharedMonitor found to delete")
 
         if share:
             db.session.delete(share)

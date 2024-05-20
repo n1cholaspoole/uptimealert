@@ -26,15 +26,17 @@ def login():
                 db.session.close()
 
                 if not user or not check_password_hash(user.password, form.password.data):
-                    flash('Проверьте свои учетные данные и попробуйте еще раз.')
+                    flash('Проверьте свои учетные данные и попробуйте еще раз.', 'login')
                     return render_template('/auth/login.html', form=form)
 
                 login_user(user, remember=remember)
-                return redirect(url_for('main.profile'))
+                return redirect(url_for('mnts.monitors'))
             except TemplateNotFound:
                 abort(404)
-        flash("Validation error")
-        return render_template('/auth/login.html', form=form)
+        else:
+            flash('Ошибка валидации формы', 'login')
+            print(form.errors)
+        return redirect(url_for('auth.login'))
     else:
         abort(405)
 
@@ -53,7 +55,7 @@ def signup():
                 user = User.query.filter_by(email=form.email.data).first()
 
                 if user:
-                    flash('Аккаунт с такой электронной почтой уже существует.')
+                    flash('Аккаунт с такой электронной почтой уже существует.', 'signup')
                     return render_template('/auth/signup.html', form=form)
 
                 new_user = User(email=form.email.data, username=form.username.data,
@@ -62,12 +64,14 @@ def signup():
                 db.session.commit()
                 db.session.close()
 
-                flash('Спасибо за регистрацию.')
+                flash('Спасибо за регистрацию.', 'login')
                 return redirect(url_for('auth.login'))
             except TemplateNotFound:
                 abort(404)
-        flash("Ошибка валидации формы.")
-        return render_template('/auth/signup.html', form=form)
+        else:
+            flash('Ошибка валидации формы', 'signup')
+            print(form.errors)
+        return redirect(url_for('auth.signup'))
     else:
         abort(405)
 

@@ -14,7 +14,7 @@ class SignUpForm(Form):
 
 class LoginForm(Form):
     email = StringField('Email Address', [validators.Email(), validators.Length(min=6, max=50)])
-    password = PasswordField('New Password', [
+    password = PasswordField('Password', [
         validators.Length(min=8, max=100),
         validators.DataRequired()
     ])

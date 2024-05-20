@@ -45,9 +45,10 @@ def dashboards():
                 return redirect(url_for('dash.dashboards'))
             except TemplateNotFound:
                 abort(404)
-        flash('Ошибка валидации формы', 'dash')
-        print(form.errors)
-        return render_template('/dash/dashboards.html', form=form)
+        else:
+            flash('Ошибка валидации формы', 'dash')
+            print(form.errors)
+        return redirect(url_for('dash.dashboards'))
     else:
         abort(404)
 
