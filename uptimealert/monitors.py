@@ -105,20 +105,22 @@ def monitors_share():
         if form.validate():
             user = User.query.filter_by(email=form.email.data.strip()).first()
             monitor = Monitor.query.filter_by(id=form.hidden_id.data, user_id=current_user.id).first()
-            shared_monitor = SharedMonitor.query.filter_by(shared_user_id=user.id, monitor_id=monitor.id).first()
 
             if not user:
                 flash('Пользователя с таким адресом электронной почты не существует', 'share')
             elif user.email is current_user.email:
                 flash('Поделитесь с кем-нибудь другим.', 'share')
-            elif shared_monitor:
-                flash('Этот пользователь уже имеет доступ.', 'share')
             else:
                 if monitor:
-                    new_shared_monitor = SharedMonitor(monitor_id=monitor.id, shared_user_id=user.id)
+                    shared_monitor = SharedMonitor.query.filter_by(shared_user_id=user.id,
+                                                                   monitor_id=monitor.id).first()
+                    if shared_monitor:
+                        flash('Этот пользователь уже имеет доступ.', 'share')
+                    else:
+                        new_shared_monitor = SharedMonitor(monitor_id=monitor.id, shared_user_id=user.id)
 
-                    db.session.add(new_shared_monitor)
-                    db.session.commit()
+                        db.session.add(new_shared_monitor)
+                        db.session.commit()
 
             db.session.close()
             return redirect(url_for('mnts.monitor', monitor_id=form.hidden_id.data))
