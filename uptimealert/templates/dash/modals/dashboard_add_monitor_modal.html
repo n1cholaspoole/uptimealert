@@ -1,8 +1,8 @@
 {% block dashboard_add_monitor_modal %}
 <div id="dashboard-add-monitor-modal" class="modal">
-  <div class="modal-background"></div>
-  <div class="modal-content">
-    <div class="box">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+        <div class="box">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% for category, message in messages %}
                 {% if category == 'monitor' %}
@@ -21,7 +21,10 @@
                         <label>
                             <select id="monitor_id" name="monitor_id">
                                 {% for monitor in user_monitors %}
-                                <option value="{{ monitor.id }}">{{ monitor.name }}</option>
+                                    <option value="{{ monitor.id }}">{{ monitor.name }}</option>
+                                {% endfor %}
+                                {% for monitor, email in shared_monitors %}
+                                    <option value="{{ monitor.id }}">{{ monitor.name }} | {{ email }}</option>
                                 {% endfor %}
                             </select>
                         </label>
@@ -30,9 +33,8 @@
             </div>
             <button class="button is-block is-info is-large">Добавить монитор</button>
         </form>
+        </div>
     </div>
-  </div>
-
-  <button class="modal-close is-large" aria-label="close"></button>
+    <button class="modal-close is-large" aria-label="close"></button>
 </div>
 {% endblock %}

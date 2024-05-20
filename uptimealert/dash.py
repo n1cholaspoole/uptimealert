@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, abort, request, flash, url_for, redirect
 from flask_login import current_user, login_required
-from models import Dashboard, Monitor, DashboardMonitor, SharedMonitor
+from models import Dashboard, Monitor, DashboardMonitor, SharedMonitor, User
 from forms import DashForm, DashMonitorForm
 from jinja2 import TemplateNotFound
 from app import db
@@ -14,18 +14,18 @@ def dashboards():
     form = DashForm(request.form)
     if request.method == 'GET':
         try:
-            owned_monitors = db.session.query(Monitor).filter_by(user_id=current_user.id)
-            shared_monitors = (db.session.query(Monitor).join(SharedMonitor,
-                                                              Monitor.id == SharedMonitor.monitor_id)
-                               .filter(SharedMonitor.shared_user_id == current_user.id))
-            user_monitors = owned_monitors.union_all(shared_monitors).all()
-
+            user_monitors = db.session.query(Monitor).filter_by(user_id=current_user.id).all()
+            shared_monitors = (db.session.query(Monitor,User.email.label('email'))
+                               .join(SharedMonitor, Monitor.id == SharedMonitor.monitor_id)
+                               .join(User, Monitor.user_id == User.id)
+                               .filter(SharedMonitor.shared_user_id == current_user.id).all())
             user_dashboards = (Dashboard.query.filter_by(user_id=current_user.id)
                                .options(db.joinedload(Dashboard.monitors).joinedload(DashboardMonitor.monitor)).all())
+
             db.session.close()
 
-            return render_template('/dash/dashboards.html',
-                                   user_dashboards=user_dashboards, user_monitors=user_monitors)
+            return render_template('/dash/dashboards.html', user_dashboards=user_dashboards,
+                                   user_monitors=user_monitors, shared_monitors=shared_monitors)
         except TemplateNotFound:
             abort(404)
     elif request.method == 'POST':
