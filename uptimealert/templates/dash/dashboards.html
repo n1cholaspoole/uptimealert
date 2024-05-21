@@ -40,13 +40,15 @@
     {% for monitor in dashboard.owned_monitors %}
         <div class="box">
             <form method="POST" action="{{ url_for('dash.dashboards_monitor_delete', dashboard_id=dashboard.dashboard.id, monitor_id=monitor.id) }}">
-                <div class="grid">
-                    <div class="cell">
-                        <a class="has-text-white subtitle" href="{{ url_for('mnts.monitor', monitor_id=monitor.id ) }}">{{ monitor.name }}</a>
-                    </div>
-                    <div class="cell"></div>
-                    <div class="cell has-text-right">
-                        <button class="button is-danger is-small" type="submit">Удалить</button>
+                <div class="fixed-grid has-3-cols-desktop has-1-cols-mobile">
+                    <div class="grid">
+                        <div class="cell">
+                            <a class="has-text-white subtitle" href="{{ url_for('mnts.monitor', monitor_id=monitor.id ) }}">{{ monitor.name }}</a>
+                        </div>
+                        <div class="cell is-hidden-mobile"></div>
+                        <div class="cell has-text-right">
+                            <button class="button is-danger is-small" type="submit">Удалить</button>
+                        </div>
                     </div>
                 </div>
             </form>
@@ -57,15 +59,17 @@
         {% for monitor, email in dashboard.shared_monitors %}
             <div class="box">
                 <form method="POST" action="{{ url_for('dash.dashboards_monitor_delete', dashboard_id=dashboard.dashboard.id, monitor_id=monitor.id) }}">
-                    <div class="grid">
-                        <div class="cell">
-                            <a class="has-text-white subtitle" href="{{ url_for('mnts.monitor', monitor_id=monitor.id ) }}">{{ monitor.name }}</a>
-                        </div>
-                        <div class="cell">
-                            <p class="has-text-white subtitle">Владелец: {{ email }}</p>
-                        </div>
-                        <div class="cell has-text-right">
-                            <button class="button is-danger is-small" type="submit">Удалить</button>
+                    <div class="fixed-grid has-3-cols-desktop has-1-cols-mobile">
+                        <div class="grid">
+                            <div class="cell">
+                                <a class="has-text-white subtitle" href="{{ url_for('mnts.monitor', monitor_id=monitor.id ) }}">{{ monitor.name }}</a>
+                            </div>
+                            <div class="cell">
+                                <p class="has-text-white subtitle">Владелец: {{ email }}</p>
+                            </div>
+                            <div class="cell has-text-right">
+                                <button class="button is-danger is-small" type="submit">Удалить</button>
+                            </div>
                         </div>
                     </div>
                 </form>

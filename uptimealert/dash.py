@@ -39,7 +39,7 @@ def dashboards():
                                           Monitor.user_id == current_user.id)
                                   .all())
 
-                shared_monitors = (db.session.query(Monitor, User.email.label('email'))
+                dash_shared_monitors = (db.session.query(Monitor, User.email.label('email'))
                                    .join(SharedMonitor, Monitor.id == SharedMonitor.monitor_id)
                                    .join(DashboardMonitor, Monitor.id == DashboardMonitor.monitor_id)
                                    .join(User, Monitor.user_id == User.id)
@@ -47,7 +47,7 @@ def dashboards():
                                            SharedMonitor.shared_user_id == current_user.id)
                                    .all())
 
-                dashboards.append(DashboardInfo(dashboard, owned_monitors, shared_monitors))
+                dashboards.append(DashboardInfo(dashboard, owned_monitors, dash_shared_monitors))
 
             db.session.close()
 
