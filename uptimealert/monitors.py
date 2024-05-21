@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, abort, request, flash, url_for, redirect
 from flask_login import current_user, login_required
-from models import Monitor, User, SharedMonitor
+from models import Monitor, User, SharedMonitor, DashboardMonitor
 from forms import MonitorForm, ShareForm
 from jinja2 import TemplateNotFound
 from app import db
@@ -141,19 +141,12 @@ def monitors_share_delete(share_id, monitor_id):
                   .options(db.joinedload(SharedMonitor.monitor))
                   .first()))
 
-        if not share:
-            print("SharedMonitor not found or access denied")
-        else:
-            print("SharedMonitor retrieved:", share)
-
         if share:
-            db.session.delete(share)
-            db.session.commit()
-            print("SharedMonitor deleted successfully")
-        else:
-            print("No SharedMonitor found to delete")
+            dashboard_monitors = (db.session.query(DashboardMonitor)
+                                 .filter(DashboardMonitor.monitor_id == share.monitor_id).all())
 
-        if share:
+            for dashboard_monitor in dashboard_monitors:
+                db.session.delete(dashboard_monitor)
             db.session.delete(share)
             db.session.commit()
 

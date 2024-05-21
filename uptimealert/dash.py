@@ -8,6 +8,13 @@ from app import db
 dash = Blueprint('dash', __name__, template_folder='templates')
 
 
+class DashboardInfo:
+    def __init__(self, dashboard, owned_monitors, shared_monitors):
+        self.dashboard = dashboard
+        self.owned_monitors = owned_monitors
+        self.shared_monitors = shared_monitors
+
+
 @dash.route('/dash/', methods=['GET', 'POST'])
 @login_required
 def dashboards():
@@ -15,16 +22,36 @@ def dashboards():
     if request.method == 'GET':
         try:
             user_monitors = db.session.query(Monitor).filter_by(user_id=current_user.id).all()
-            shared_monitors = (db.session.query(Monitor,User.email.label('email'))
+
+            shared_monitors = (db.session.query(Monitor, User.email.label('email'))
                                .join(SharedMonitor, Monitor.id == SharedMonitor.monitor_id)
                                .join(User, Monitor.user_id == User.id)
                                .filter(SharedMonitor.shared_user_id == current_user.id).all())
-            user_dashboards = (Dashboard.query.filter_by(user_id=current_user.id)
-                               .options(db.joinedload(Dashboard.monitors).joinedload(DashboardMonitor.monitor)).all())
+
+            user_dashboards = Dashboard.query.filter_by(user_id=current_user.id).all()
+
+            dashboards = []
+
+            for dashboard in user_dashboards:
+                owned_monitors = (db.session.query(Monitor)
+                                  .join(DashboardMonitor, Monitor.id == DashboardMonitor.monitor_id)
+                                  .filter(DashboardMonitor.dashboard_id == dashboard.id,
+                                          Monitor.user_id == current_user.id)
+                                  .all())
+
+                shared_monitors = (db.session.query(Monitor, User.email.label('email'))
+                                   .join(SharedMonitor, Monitor.id == SharedMonitor.monitor_id)
+                                   .join(DashboardMonitor, Monitor.id == DashboardMonitor.monitor_id)
+                                   .join(User, Monitor.user_id == User.id)
+                                   .filter(DashboardMonitor.dashboard_id == dashboard.id,
+                                           SharedMonitor.shared_user_id == current_user.id)
+                                   .all())
+
+                dashboards.append(DashboardInfo(dashboard, owned_monitors, shared_monitors))
 
             db.session.close()
 
-            return render_template('/dash/dashboards.html', user_dashboards=user_dashboards,
+            return render_template('/dash/dashboards.html', dashboards=dashboards,
                                    user_monitors=user_monitors, shared_monitors=shared_monitors)
         except TemplateNotFound:
             abort(404)

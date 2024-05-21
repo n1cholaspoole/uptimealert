@@ -11,21 +11,21 @@
         </button>
     </div>
 <div class="block">
-{% for dashboard in user_dashboards %}
+{% for dashboard in dashboards %}
     <div class="box has-background-gray">
-        <form method="POST" action="{{ url_for('dash.dashboards_delete', dashboard_id=dashboard.id) }}">
+        <form method="POST" action="{{ url_for('dash.dashboards_delete', dashboard_id=dashboard.dashboard.id) }}">
             <div class="fixed-grid has-3-cols has-1-cols-mobile">
                 <div class="grid">
                     <div class="cell has-text-left-desktop">
-                        <a class="has-text-white title" href="{{ url_for('dash.dashboards') + dashboard.id|string }}">{{ dashboard.name }}</a>
+                        <a class="has-text-white title" href="{{ url_for('dash.dashboards') + dashboard.dashboard.id|string }}">{{ dashboard.dashboard.name }}</a>
                     </div>
                     <div class="cell is-flex is-align-items-center is-justify-content-center">
-                        <a class="link has-text-center" href="{{ url_for('dash.dashboard', dashboard_id=dashboard.id) }}">{{ url_for('dash.dashboard', dashboard_id=dashboard.id) }}</a>
+                        <a class="link has-text-center" href="{{ url_for('dash.dashboard', dashboard_id=dashboard.dashboard.id) }}">{{ url_for('dash.dashboard', dashboard_id=dashboard.dashboard.id) }}</a>
                     </div>
                     <div class="columns is-mobile is-vcentered">
                         <div class="column is-flex-grow-1-desktop is-hidden-mobile"></div>
                         <div class="column is-flex-grow-0-desktop is-flex-grow-1-mobile">
-                            <button class="button is-info js-modal-trigger is-small" type="button" data-target="dashboard-add-monitor-modal" data-value="{{ dashboard.id|string }}">Добавить монитор</button>
+                            <button class="button is-info js-modal-trigger is-small" type="button" data-target="dashboard-add-monitor-modal" data-value="{{ dashboard.dashboard.id|string }}">Добавить монитор</button>
                         </div>
                         <div class="column is-flex-grow-0-desktop is-flex-grow-1-mobile">
                             <button class="button is-danger is-small" type="submit">Удалить</button>
@@ -33,17 +33,18 @@
                     </div>
                 </div>
             </div>
-            {% if dashboard.monitors %}
+            {% if dashboard.owned_monitors or dashboard.shared_monitors %}
                 <div class="spacer"></div>
             {% endif %}
         </form>
-    {% for monitor in dashboard.monitors %}
+    {% for monitor in dashboard.owned_monitors %}
         <div class="box">
-            <form method="POST" action="{{ url_for('dash.dashboards_monitor_delete', dashboard_id=dashboard.id, monitor_id=monitor.monitor.id) }}">
+            <form method="POST" action="{{ url_for('dash.dashboards_monitor_delete', dashboard_id=dashboard.dashboard.id, monitor_id=monitor.id) }}">
                 <div class="grid">
                     <div class="cell">
-                        <a class="has-text-white subtitle" href="{{ url_for('mnts.monitor', monitor_id=monitor.monitor.id ) }}">{{ monitor.monitor.name }}</a>
+                        <a class="has-text-white subtitle" href="{{ url_for('mnts.monitor', monitor_id=monitor.id ) }}">{{ monitor.name }}</a>
                     </div>
+                    <div class="cell"></div>
                     <div class="cell has-text-right">
                         <button class="button is-danger is-small" type="submit">Удалить</button>
                     </div>
@@ -51,6 +52,26 @@
             </form>
         </div>
     {% endfor %}
+    {% if dashboard.shared_monitors %}
+        <p class="has-text-white has-text-left">Сторонние мониторы:</p>
+        {% for monitor, email in dashboard.shared_monitors %}
+            <div class="box">
+                <form method="POST" action="{{ url_for('dash.dashboards_monitor_delete', dashboard_id=dashboard.dashboard.id, monitor_id=monitor.id) }}">
+                    <div class="grid">
+                        <div class="cell">
+                            <a class="has-text-white subtitle" href="{{ url_for('mnts.monitor', monitor_id=monitor.id ) }}">{{ monitor.name }}</a>
+                        </div>
+                        <div class="cell">
+                            <p class="has-text-white subtitle">Владелец: {{ email }}</p>
+                        </div>
+                        <div class="cell has-text-right">
+                            <button class="button is-danger is-small" type="submit">Удалить</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        {% endfor %}
+    {% endif %}
     </div>
 {% endfor %}
 </div>
