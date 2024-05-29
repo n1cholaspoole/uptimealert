@@ -74,8 +74,8 @@ def ping_servers():
                             current_status = False
                         print(f"{monitor.id} | HTTP | {timestamp} | {current_status} | {response.status_code}")
                     except requests.RequestException:
-                        current_status = False
                         print(f"{monitor.id} | HTTP | {timestamp} | {current_status} | Exception")
+                        print(f"Encountered exception: {monitor.exception}")
 
                 if monitor.status is None:
                     monitor.status = current_status
