@@ -39,7 +39,6 @@ class Incident(db.Model):
     monitor_id = db.Column(db.Integer, db.ForeignKey(Monitor.id))
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
     resolved_at = db.Column(db.DateTime)
-    caused_by = db.Column(db.String(150))
 
     monitor = db.relationship("Monitor", back_populates="incidents", foreign_keys='Incident.monitor_id')
 

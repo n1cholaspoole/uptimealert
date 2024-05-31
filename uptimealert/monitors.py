@@ -1,3 +1,5 @@
+from urllib.parse import urlparse
+
 from flask import Blueprint, render_template, abort, request, flash, url_for, redirect
 from flask_login import current_user, login_required
 from models import Monitor, User, SharedMonitor, DashboardMonitor
@@ -5,8 +7,52 @@ from forms import MonitorForm, ShareForm
 from jinja2 import TemplateNotFound
 from app import db
 from datetime import datetime
+import socket
+import idna
+import re
 
 mnts = Blueprint('mnts', __name__, template_folder='templates')
+
+
+def strip_protocol(url):
+    new_url = re.sub(r'^[a-zA-Z]+:/{1,3}', '', url)
+    return new_url
+
+
+def is_ip_address(address):
+    try:
+        return socket.inet_aton(address)
+
+    except socket.error:
+        try:
+            socket.inet_pton(socket.AF_INET6, address)
+            return True
+
+        except socket.error:
+            return False
+
+
+def is_valid_hostname(hostname):
+    if len(hostname) > 255:
+        return False
+
+    try:
+        idna_encoded = idna.encode(hostname).decode('ascii')
+    except idna.IDNAError:
+        return False
+
+    allowed = re.compile(r"^(?!-)[A-Z\d-]{1,63}(?<!-)$", re.IGNORECASE)
+    return all(allowed.match(x) for x in idna_encoded.split("."))
+
+
+def is_valid_url(url):
+    parsed_url = urlparse(url)
+    hostname = parsed_url.hostname
+
+    if hostname is None:
+        return False, False
+
+    return is_ip_address(hostname), is_valid_hostname(hostname)
 
 
 @mnts.route('/monitors/', methods=['GET', 'POST'])
@@ -34,13 +80,27 @@ def monitors():
                 monitor = Monitor.query.filter_by(name=form.name.data.strip()).first()
 
                 if monitor and monitor.user_id is current_user.id:
-                    flash('Монитор с таким названием уже существует.')
+                    flash('Монитор с таким названием уже существует.', 'monitor')
 
-                if form.type.data != 'http':
+                schema = form.schema.data
+                hostname = form.hostname.data.strip()
+
+                if form.type.data in ['ping', 'port']:
+                    if not is_ip_address(hostname) and not is_valid_hostname(hostname):
+                        flash('Поле "Имя хоста" должно содержать только IP-адрес или домен.',
+                              'monitor')
+                        return redirect(url_for('mnts.monitors'))
+
+                if form.type.data == 'http':
+                    if not is_valid_url(hostname):
+                        flash('Проверьте введенный URL-адрес.', 'monitor')
+                        return redirect(url_for('mnts.monitors'))
+                    hostname = strip_protocol(hostname)
+                else:
                     form.schema.data = None
 
                 new_monitor = Monitor(name=form.name.data.strip(), type=form.type.data,
-                                      schema=form.schema.data, hostname=form.hostname.data,
+                                      schema=schema, hostname=hostname,
                                       port=form.port.data, interval=form.interval.data,
                                       threshold=form.threshold.data, created_at=datetime.now(),
                                       user_id=current_user.id)
@@ -53,7 +113,7 @@ def monitors():
             except TemplateNotFound:
                 abort(404)
         else:
-            flash("Ошибка валидации формы.")
+            flash("Ошибка валидации формы.", 'monitor')
             print(form.errors)
         return redirect(url_for('mnts.monitors'))
     else:
@@ -143,7 +203,7 @@ def monitors_share_delete(share_id, monitor_id):
 
         if share:
             dashboard_monitors = (db.session.query(DashboardMonitor)
-                                 .filter(DashboardMonitor.monitor_id == share.monitor_id).all())
+                                  .filter(DashboardMonitor.monitor_id == share.monitor_id).all())
 
             for dashboard_monitor in dashboard_monitors:
                 db.session.delete(dashboard_monitor)
