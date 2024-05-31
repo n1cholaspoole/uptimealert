@@ -1,20 +1,31 @@
 {% extends "/base.html" %}
 
 {% block content %}
-<h1 class="title has-text-white has-text-left">
-  Добро пожаловать, {{ username }}!
-</h1>
-    {% with messages = get_flashed_messages() %}
-        {% for message in messages %}
-            <div id="modal-notification" class="notification is-danger">
-                {{ message }}
-            </div>
+    <div class="block">
+        <p class="title has-text-white has-text-left">
+            Добро пожаловать, {{ user.username }}!
+        </p>
+        <p class="subtitle has-text-white has-text-left">
+            Электронная почта для входа и уведомлений: {{ user.email }}
+        </p>
+    </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            {% if category in ["email", "username"] %}
+                <div id="modal-notification" class="notification is-danger">
+                    {{ message }}
+                </div>
+            {% elif category in ["email_s", "username_s"] %}
+                <div id="modal-notification" class="notification is-success">
+                    {{ message }}
+                </div>
+            {% endif %}
         {% endfor %}
     {% endwith %}
     <div class="fixed-grid has-2-cols has-1-cols-mobile">
         <div class="grid">
             <div class="cell">
-                <form method="POST" action="{{ url_for('main.profile_change_email') }}">
+                <form method="POST" id="email_form" action="{{ url_for('main.profile_change_email') }}">
                     <div class="field">
                         <div class="control">
                             <label>
@@ -22,11 +33,11 @@
                             </label>
                         </div>
                     </div>
-                    <button class="button is-block is-info is-large is-fullwidth is-wrap">Изменить электронную почту</button>
+                    <button class="button is-block is-info is-large is-fullwidth is-wrap" form="email_form">Изменить электронную почту</button>
                 </form>
             </div>
             <div class="cell">
-                <form method="POST" action="{{ url_for('main.profile_change_username') }}">
+                <form method="POST" id="username_form" action="{{ url_for('main.profile_change_username') }}">
                     <div class="field">
                         <div class="control">
                             <label>
@@ -34,10 +45,14 @@
                             </label>
                         </div>
                     </div>
-                    <button class="button is-block is-info is-large is-fullwidth is-wrap">Изменить имя пользователя</button>
+                    <button class="button is-block is-info is-large is-fullwidth is-wrap" form="username_form">Изменить имя пользователя</button>
                 </form>
             </div>
         </div>
     </div>
 <a class="button is-block is-warning is-medium is-fullwidth" href="{{ url_for('auth.logout') }}">Выйти из аккаунта</a>
+{% if user.id == 1 %}
+    <br>
+    <a class="button is-medium is-success is-float-right" type="button" href="{{ url_for('admin.chpasswd') }}">Админ зона</a>
+{% endif %}
 {% endblock %}

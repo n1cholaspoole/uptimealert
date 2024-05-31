@@ -67,3 +67,11 @@ class UsernameForm(Form):
 class ShareForm(Form):
     hidden_id = IntegerField('Hidden ID', [validators.NumberRange()])
     email = StringField('Email Address', [validators.Email(), validators.Length(min=6, max=50)])
+
+
+class AdminForm(Form):
+    user_id = IntegerField('Id', [validators.NumberRange()])
+    password = PasswordField('Password', [
+        validators.Length(min=8, max=100),
+        validators.DataRequired()
+    ])

@@ -6,7 +6,11 @@
     <div class="box">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% for category, message in messages %}
-                {% if category == 'login' %}
+                {% if category == 'login_s' %}
+                    <div id="modal-notification" class="notification is-success">
+                        {{ message }}
+                    </div>
+                {% else %}
                     <div id="modal-notification" class="notification is-danger">
                         {{ message }}
                     </div>
@@ -16,13 +20,19 @@
         <form method="POST" action="/auth/login">
             <div class="field">
                 <div class="control">
-                    <input class="input is-large" required type="email" name="email" placeholder="Электронная почта" minlength="5" maxlength="50" autofocus="">
+                    <p class="has-text-left is-small">Электронная почта</p>
+                    <label>
+                        <input class="input is-large" required type="email" name="email" placeholder="Электронная почта" minlength="5" maxlength="50" autofocus="">
+                    </label>
                 </div>
             </div>
 
             <div class="field">
                 <div class="control">
-                    <input class="input is-large" required type="password" name="password" placeholder="Пароль" minlength="8" maxlength="100">
+                    <p class="has-text-left is-small">Пароль</p>
+                    <label>
+                        <input class="input is-large" required type="password" name="password" placeholder="Пароль" minlength="8" maxlength="100">
+                    </label>
                 </div>
             </div>
             <div class="field">

@@ -15,7 +15,7 @@ def index():
 @main.route('/profile/', methods=['GET'])
 @login_required
 def profile():
-    return render_template('/main/profile.html', username=current_user.username)
+    return render_template('/main/profile.html', user=current_user)
 
 
 @main.route('/profile/change/email', methods=['POST'])
@@ -32,6 +32,10 @@ def profile_change_email():
                 User.query.filter_by(id=current_user.id).update({User.email: form.email.data})
                 db.session.commit()
                 db.session.close()
+                flash('Почта успешно обновлена.', 'email_s')
+
+            return redirect(url_for('main.profile'))
+
         else:
             flash("Ошибка валидации формы.", 'email')
             print(form.errors)
@@ -49,6 +53,9 @@ def profile_change_username():
             User.query.filter_by(id=current_user.id).update({User.username: form.username.data.strip()})
             db.session.commit()
             db.session.close()
+            flash('Имя пользователя успешно обновлено.', 'username_s')
+
+            return redirect(url_for('main.profile'))
         else:
             flash("Ошибка валидации формы.", 'username')
             print(form.errors)

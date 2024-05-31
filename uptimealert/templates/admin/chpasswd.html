@@ -1,0 +1,45 @@
+{% extends "/base.html" %}
+
+{% block content %}
+<div class="column is-4 is-offset-4">
+    <h3 class="title has-text-white">Смена пароля</h3>
+
+    <div class="box">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                {% if category == 'admin' %}
+                    <div id="notification" class="notification is-danger">
+                        {{ message }}
+                    </div>
+                {% elif category == 'admin_s' %}
+                    <div id="notification" class="notification is-success">
+                        {{ message }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endwith %}
+        <form method="POST" action="{{ url_for('admin.chpasswd') }}">
+            <div class="field">
+                <div class="control">
+                    <p>Выберите пользователя</p>
+                    <div class="select is-medium has-float-left">
+                        <label>
+                            <select id="user_id" name="user_id">
+                                {% for user in users %}
+                                    <option value="{{ user.id }}">{{ user.email }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="field">
+                <div class="control">
+                    <input class="input is-large" required type="password" name="password" placeholder="Новый пароль" minlength="8" maxlength="100">
+                </div>
+            </div>
+            <button class="button is-block is-info is-large is-full-width">Сменить пароль</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -64,7 +64,7 @@ def signup():
                 db.session.commit()
                 db.session.close()
 
-                flash('Спасибо за регистрацию.', 'login')
+                flash('Спасибо за регистрацию.', 'login_s')
                 return redirect(url_for('auth.login'))
             except TemplateNotFound:
                 abort(404)

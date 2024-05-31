@@ -1,35 +1,48 @@
-from flask import Blueprint, render_template, abort, request
+from flask import Blueprint, render_template, abort, request, flash, redirect, url_for
+from werkzeug.security import generate_password_hash
 from flask_login import current_user, login_required
-from models import Monitor
+from models import User
 from jinja2 import TemplateNotFound
+from forms import AdminForm
 from app import db
 
 admin = Blueprint('admin', __name__, template_folder='templates', url_prefix='/admin')
 
 
-@admin.route('/monitors', methods=['GET'])
+@admin.route('/chpasswd/', methods=['GET', 'POST'])
 @login_required
-def monitors_admin():
+def chpasswd():
+    form = AdminForm(request.form)
     if request.method == 'GET':
         try:
             if current_user.id == 1:
-                users_monitors = Monitor.query.order_by(Monitor.status).all()
+                users = User.query.all()
                 db.session.close()
 
-                if users_monitors:
-                    for monitor in users_monitors:
-                        if monitor.last_checked_at:
-                            monitor.last_checked_at = monitor.last_checked_at.strftime("%d-%m-%Y %H:%M")
-
-                        if monitor.status:
-                            monitor.status = "Доступен"
-                        elif monitor.status is None:
-                            monitor.status = "Пока неизвестно"
-                        else:
-                            monitor.status = "Недоступен"
-
-                return render_template('/admin/monitors.html', users_monitors=users_monitors)
+                return render_template('/admin/chpasswd.html', users=users)
+            return redirect(url_for('main.index'))
         except TemplateNotFound:
             abort(404)
+    elif request.method == 'POST':
+        if form.validate():
+            if current_user.id == 1:
+                user = User.query.filter(User.id == form.user_id.data).first()
+
+                if not user:
+                    flash('Аккаунта не существует', 'admin')
+                else:
+                    User.query.filter_by(id=form.user_id.data).update(
+                        {User.password: generate_password_hash(form.password.data, method='pbkdf2:sha256')})
+                    db.session.commit()
+                    db.session.close()
+                    flash('Пароль успешно изменен.', 'admin_s')
+
+                return redirect(url_for('admin.chpasswd'))
+
+            return redirect(url_for('main.index'))
+        else:
+            flash("Ошибка валидации формы.", 'admin')
+            print(form.errors)
+        return redirect(url_for('admin.chpasswd'))
     else:
         abort(405)
