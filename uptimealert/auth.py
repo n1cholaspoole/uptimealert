@@ -20,7 +20,6 @@ def login():
     elif request.method == 'POST':
         if form.validate():
             try:
-                remember = True if form.password.data else False
 
                 user = User.query.filter_by(email=form.email.data).first()
                 db.session.close()
@@ -29,7 +28,7 @@ def login():
                     flash('Проверьте свои учетные данные и попробуйте еще раз.', 'login')
                     return render_template('/auth/login.html', form=form)
 
-                login_user(user, remember=remember)
+                login_user(user, remember=form.remember.data)
                 return redirect(url_for('mnts.monitors'))
             except TemplateNotFound:
                 abort(404)

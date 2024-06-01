@@ -1,4 +1,5 @@
-from wtforms import Form, StringField, SelectField, IntegerRangeField, IntegerField, PasswordField, validators
+from wtforms import (Form, StringField, SelectField, IntegerRangeField,
+                     IntegerField, PasswordField, BooleanField, validators)
 
 
 class SignUpForm(Form):
@@ -18,6 +19,7 @@ class LoginForm(Form):
         validators.Length(min=8, max=100),
         validators.DataRequired()
     ])
+    remember = BooleanField()
 
 
 class MonitorForm(Form):
