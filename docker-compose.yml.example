@@ -1,73 +1,57 @@
-version: '3.8'
-
 services:
   server:
     image: uptimealert
     build: .
-    container_name: uptimealert_server
-    command: gunicorn -w 6 -b 0.0.0.0 'app:create_app()'
+    container_name: uptimealert-server
+    command: gunicorn -w 2 -b 0.0.0.0 'app:create_app()'
     restart: unless-stopped
     ports:
-        - '8000'
+      - "8000:8000"
     env_file:
-        - .env
-    volumes:
-        - ./data/uptimealert/:/uptimealert/
-    networks:
-        caddy:
-            ipv4_address: 10.0.1.15
-        postgres-network:
-            ipv4_address: 10.0.2.8
-        default:
+      - .env
+    depends_on:
+      - postgres
 
   worker:
     image: uptimealert
     build: .
-    command: celery -A init_celery worker --loglevel INFO
-    container_name: uptimealert_worker
+    command: celery -A init_celery worker --concurrency=2 --loglevel INFO
+    container_name: uptimealert-worker
     restart: unless-stopped
     env_file:
-        - .env
-    volumes:
-        - ./data/uptimealert/:/uptimealert/
+      - .env
     depends_on:
-        - server
-        - redis
-    networks:
-        postgres-network:
-            ipv4_address: 10.0.2.9
-        default:
+      - redis
+      - postgres
 
   beat:
     image: uptimealert
     build: .
-    command: celery -A init_celery beat --loglevel INFO
-    container_name: uptimealert_beat
+    command: celery -A init_celery beat --concurrency=2 --loglevel INFO
+    container_name: uptimealert-beat
     restart: unless-stopped
     env_file:
-        - .env
-    volumes:
-        - ./data/uptimealert/:/uptimealert/
+      - .env
     depends_on:
-        - server
-        - worker
-        - redis
-    networks:
-        default:
+      - worker
+      - redis
+      - postgres
 
   redis:
-    image: redis:7.2.4-alpine
-    container_name: uptimealert_redis
+    image: redis:7.2-alpine
+    container_name: uptimealert-redis
     restart: unless-stopped
-    command: redis-server --save 60 1 --loglevel warning --requirepass password
+    command: redis-server --save 60 1 --loglevel warning --requirepass donotuseinproductionxd
     volumes:
-        - ./data/redis/:/data
-    networks:
-        default:
+        - './data/redis/:/data'
 
-networks:
-    default:
-    caddy:
-        external: true
-    postgres-network:
-        external: true
+  postgres:
+    image: postgres:14-alpine
+    restart: unless-stopped
+    container_name: uptimealert-postgres
+    environment:
+      - POSTGRES_DB=uptimealert
+      - POSTGRES_USER=uptimealert_user
+      - POSTGRES_PASSWORD=donotuseinproductionxd
+    volumes:
+      - './data/postgres/:/var/lib/postgresql/data'
