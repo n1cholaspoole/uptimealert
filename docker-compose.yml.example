@@ -1,7 +1,6 @@
 services:
   server:
-    image: uptimealert
-    build: .
+    image: ghcr.io/n1cholaspoole/uptimealert
     container_name: uptimealert-server
     command: gunicorn -w 2 -b 0.0.0.0 'app:create_app()'
     restart: unless-stopped
@@ -13,8 +12,7 @@ services:
       - postgres
 
   worker:
-    image: uptimealert
-    build: .
+    image: ghcr.io/n1cholaspoole/uptimealert
     command: celery -A init_celery worker --concurrency=2 --loglevel INFO
     container_name: uptimealert-worker
     restart: unless-stopped
@@ -25,8 +23,7 @@ services:
       - postgres
 
   beat:
-    image: uptimealert
-    build: .
+    image: ghcr.io/n1cholaspoole/uptimealert
     command: celery -A init_celery beat --concurrency=2 --loglevel INFO
     container_name: uptimealert-beat
     restart: unless-stopped
