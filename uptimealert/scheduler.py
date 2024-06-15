@@ -107,8 +107,9 @@ def ping(monitor_id):
                     print("Sending email...")
                     send_email(monitor)
                 else:
+                    db.session.close()
                     print("Retrying immediately...")
-                    ping.apply_async((monitor.id,))
+                    ping.delay(monitor_id)
 
     db.session.commit()
     db.session.close()
@@ -128,6 +129,6 @@ def ping_servers():
         if not monitor.disabled:
             if monitor.last_checked_at is None or next_minute > monitor.last_checked_at + timedelta(
                     minutes=monitor.interval):
-                ping.apply_async((monitor.id,))
+                ping.delay(monitor.id)
 
     db.session.close()
