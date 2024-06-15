@@ -67,9 +67,9 @@ def ping(monitor_id):
                     current_status = False
                 print(f"{monitor.id} | HTTP | {timestamp} | {current_status} | {response.status_code}")
             except requests.RequestException as e:
+                current_status = False
                 print(f"{monitor.id} | HTTP | {timestamp} | {current_status} | Exception")
                 print(f"Encountered exception: {e}")
-                current_status = False
 
         if monitor.status is None:
             monitor.status = current_status
