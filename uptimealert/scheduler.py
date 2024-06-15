@@ -42,75 +42,73 @@ def send_email(monitor):
 @celery.task
 def ping(monitor_id):
     now = datetime.now()
-    next_minute = now + timedelta(minutes=1)
     timestamp = now.strftime("%d-%m-%Y %H:%M:%S")
     current_status = None
 
     monitor = (db.session.query(Monitor).filter(Monitor.id == monitor_id).join(User, Monitor.user_id == User.id)
                .options(db.joinedload(Monitor.shared_users).joinedload(SharedMonitor.shared_user)).first())
 
-    if not monitor.disabled:
-        if monitor.last_checked_at is None or next_minute > monitor.last_checked_at + timedelta(
-                minutes=monitor.interval):
-            monitor.last_checked_at = now
+    if monitor:
+        monitor.last_checked_at = now
 
-            if monitor.type == "ping":
-                current_status = subprocess.call(['ping', '-c', '1', monitor.hostname]) == 0
-                print(f"{monitor.id} | PING | {timestamp} | {current_status}")
-            elif monitor.type == "port":
-                current_status = check_socket(monitor.hostname, monitor.port)
-                print(f"{monitor.id} | PORT | {timestamp} | {current_status}")
-            elif monitor.type == "http":
-                try:
-                    monitor_url = monitor.schema + monitor.hostname
-                    response = requests.get(f"{monitor_url}", timeout=10)
-                    if response.ok or response.is_redirect:
-                        current_status = True
-                    else:
-                        current_status = False
-                    print(f"{monitor.id} | HTTP | {timestamp} | {current_status} | {response.status_code}")
-                except requests.RequestException:
-                    print(f"{monitor.id} | HTTP | {timestamp} | {current_status} | Exception")
-                    print(f"Encountered exception: {monitor.exception}")
+        if monitor.type == "ping":
+            current_status = subprocess.call(['ping', '-c', '1', monitor.hostname]) == 0
+            print(f"{monitor.id} | PING | {timestamp} | {current_status}")
+        elif monitor.type == "port":
+            current_status = check_socket(monitor.hostname, monitor.port)
+            print(f"{monitor.id} | PORT | {timestamp} | {current_status}")
+        elif monitor.type == "http":
+            try:
+                monitor_url = monitor.schema + monitor.hostname
+                response = requests.get(f"{monitor_url}", timeout=5)
+                if response.ok or response.is_redirect:
+                    current_status = True
+                else:
+                    current_status = False
+                print(f"{monitor.id} | HTTP | {timestamp} | {current_status} | {response.status_code}")
+            except requests.RequestException as e:
+                print(f"{monitor.id} | HTTP | {timestamp} | {current_status} | Exception")
+                print(f"Encountered exception: {e}")
+                current_status = False
 
-            if monitor.status is None:
+        if monitor.status is None:
+            monitor.status = current_status
+
+        if current_status:
+            monitor.failed_times = 0
+
+            if monitor.status != current_status:
                 monitor.status = current_status
 
-            if current_status:
-                monitor.failed_times = 0
+                incident = Incident.query.filter_by(monitor_id=monitor.id).order_by(
+                    Incident.created_at.desc()).first()
+                if incident:
+                    incident.resolved_at = now
+                    print("Incident resolved.")
 
-                if monitor.status != current_status:
+                print(f"{monitor.id} | Monitor is UP. Sending email...")
+                send_email(monitor)
+        else:
+            monitor.failed_times += 1
+            db.session.commit()
+
+            print(f"{monitor.id} | FAILED {monitor.failed_times} times out of {monitor.threshold}")
+
+            if monitor.failed_times <= monitor.threshold:
+
+                if monitor.failed_times == monitor.threshold:
                     monitor.status = current_status
 
-                    incident = Incident.query.filter_by(monitor_id=monitor.id).order_by(
-                        Incident.created_at.desc()).first()
-                    if incident:
-                        incident.resolved_at = now
-                        print("Incident resolved.")
+                    print("Recording new incident...")
+                    new_incident = Incident(monitor_id=monitor.id, created_at=now)
 
-                    print(f"{monitor.id} | Monitor is UP. Sending email...")
+                    db.session.add(new_incident)
+
+                    print("Sending email...")
                     send_email(monitor)
-            else:
-                monitor.failed_times += 1
-                db.session.commit()
-
-                print(f"{monitor.id} | FAILED {monitor.failed_times} times out of {monitor.threshold}")
-
-                if monitor.failed_times <= monitor.threshold:
-
-                    if monitor.failed_times == monitor.threshold:
-                        monitor.status = current_status
-
-                        print("Recording new incident...")
-                        new_incident = Incident(monitor_id=monitor.id, created_at=now)
-
-                        db.session.add(new_incident)
-
-                        print("Sending email...")
-                        send_email(monitor)
-                    else:
-                        print("Retrying immediately...")
-                        ping.apply_async((monitor.id,))
+                else:
+                    print("Retrying immediately...")
+                    ping.apply_async((monitor.id,))
 
     db.session.commit()
     db.session.close()
@@ -120,10 +118,16 @@ def ping(monitor_id):
 def ping_servers():
     print(f"SCHEDULER IS RUNNING")
 
+    now = datetime.now()
+    next_minute = now + timedelta(minutes=1)
+
     monitors = (db.session.query(Monitor).join(User, Monitor.user_id == User.id)
                 .options(db.joinedload(Monitor.shared_users).joinedload(SharedMonitor.shared_user)).all())
 
     for monitor in monitors:
-        ping.apply_async((monitor.id,))
+        if not monitor.disabled:
+            if monitor.last_checked_at is None or next_minute > monitor.last_checked_at + timedelta(
+                    minutes=monitor.interval):
+                ping.apply_async((monitor.id,))
 
     db.session.close()

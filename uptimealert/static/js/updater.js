@@ -19,7 +19,7 @@ function updateContent() {
 }
 
 function updateTimer() {
-    let seconds = 60;
+    let seconds = 10;
     timerInterval = setInterval(function() {
         seconds--;
         let remainingSeconds = seconds % 60;
@@ -65,6 +65,6 @@ function failCheck() {
     return anyDown;
 }
 
-setInterval(updateContent, 60000);
+setInterval(updateContent, 10000);
 updateTimer();
 failCheck();
