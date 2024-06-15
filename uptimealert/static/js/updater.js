@@ -45,10 +45,14 @@ function resetTimer() {
 
 function failCheck() {
     let anyDown = false;
+
     $('.status').each(function() {
         if ($(this).text() === "Состояние: Недоступен") {
             anyDown = true;
-            return false;
+            $(this).parent().addClass('has-background-danger').addClass('round');
+            $(this).addClass('has-text-black');
+        } else {
+            $(this).parent().removeClass('has-background-danger').removeClass('round');
         }
     });
 
