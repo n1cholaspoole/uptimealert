@@ -24,7 +24,7 @@ services:
 
   beat:
     image: ghcr.io/n1cholaspoole/uptimealert
-    command: celery -A init_celery beat --concurrency=2 --loglevel INFO
+    command: celery -A init_celery beat --loglevel INFO
     container_name: uptimealert-beat
     restart: unless-stopped
     env_file:
