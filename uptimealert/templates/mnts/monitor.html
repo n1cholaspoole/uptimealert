@@ -91,6 +91,11 @@
                 <div class="cell">
                     <p>Решено в: {% if incident.resolved_at %} {{ incident.resolved_at.strftime("%d-%m-%Y %H:%M") }} {% else %} Пока не было {% endif %}</p>
                 </div>
+                <div class="cell has-text-right">
+                    <form id="i_{{ incident.id }}_delete_form" method="POST" action="{{ url_for('mnts.monitors_incident_delete', monitor_id=user_monitor.id, incident_id=incident.id) }}">
+                        <button class="button is-danger is-small" type="submit" form="i_{{ incident.id }}_delete_form">Удалить</button>
+                    </form>
+                </div>
             </div>
         {% endfor %}
     </div>

@@ -2,7 +2,7 @@ from urllib.parse import urlparse
 
 from flask import Blueprint, render_template, abort, request, flash, url_for, redirect
 from flask_login import current_user, login_required
-from models import Monitor, User, SharedMonitor, DashboardMonitor
+from models import Monitor, User, SharedMonitor, DashboardMonitor, Incident
 from forms import MonitorForm, ShareForm
 from jinja2 import TemplateNotFound
 from app import db
@@ -208,6 +208,23 @@ def monitors_share_delete(share_id, monitor_id):
             for dashboard_monitor in dashboard_monitors:
                 db.session.delete(dashboard_monitor)
             db.session.delete(share)
+            db.session.commit()
+
+        db.session.close()
+        return redirect(url_for('mnts.monitor', monitor_id=monitor_id))
+    else:
+        abort(405)
+
+
+@mnts.route('/monitors/<int:monitor_id>/incident/<int:incident_id>/delete/', methods=['POST'])
+@login_required
+def monitors_incident_delete(incident_id, monitor_id):
+    if request.method == 'POST':
+        incident = ((db.session.query(Incident).join(Monitor, Monitor.id == Incident.monitor_id)
+                  .filter(Incident.id == incident_id).filter(Monitor.user_id == current_user.id).first()))
+
+        if incident:
+            db.session.delete(incident)
             db.session.commit()
 
         db.session.close()
