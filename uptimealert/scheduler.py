@@ -82,9 +82,11 @@ def ping(monitor_id):
 
                 incident = Incident.query.filter_by(monitor_id=monitor.id).order_by(
                     Incident.created_at.desc()).first()
-                if incident:
+                if incident and incident.resolved_at is None:
                     incident.resolved_at = now
                     print("Incident resolved.")
+                else:
+                    print("Incident resolved, but its record appears to be deleted.")
 
                 print(f"{monitor.id} | Monitor is UP. Sending email...")
                 send_email(monitor)
