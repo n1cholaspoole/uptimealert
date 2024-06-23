@@ -91,12 +91,12 @@ def ping(monitor_id):
                 print(f"{monitor.id} | Monitor is UP. Sending email...")
                 send_email(monitor)
         else:
-            monitor.failed_times += 1
-            db.session.commit()
-
-            print(f"{monitor.id} | FAILED {monitor.failed_times} times out of {monitor.threshold}")
 
             if monitor.failed_times <= monitor.threshold:
+                monitor.failed_times += 1
+                db.session.commit()
+
+                print(f"{monitor.id} | FAILED {monitor.failed_times} times out of {monitor.threshold}")
 
                 if monitor.failed_times == monitor.threshold:
                     monitor.status = current_status

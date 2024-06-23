@@ -19,7 +19,7 @@
                     <p>Выберите монитор</p>
                     <div class="select is-medium">
                         <label>
-                            <select id="monitor_id" name="monitor_id">
+                            <select id="monitor_id" class="ellipsis" name="monitor_id">
                                 {% for monitor in user_monitors %}
                                     <option value="{{ monitor.id }}">{{ monitor.name }}</option>
                                 {% endfor %}

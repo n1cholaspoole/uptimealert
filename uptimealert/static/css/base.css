@@ -24,3 +24,10 @@
 .round {
   border-radius: 0.375rem;
 }
+
+.ellipsis {
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

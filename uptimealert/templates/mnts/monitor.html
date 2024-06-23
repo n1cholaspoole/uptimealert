@@ -1,7 +1,6 @@
 {% extends "/base.html" %}
 
 {% block header %}
-<script src="{{ url_for('static', filename='js/field_hide.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/modal.js') }}"></script>
 {% endblock %}
 
@@ -59,8 +58,10 @@
         </div>
     </div>
 </div>
+{% if user_monitor.shared_users %}
 <div class="block">
-    <div id="shares" class="box hide_empty is-hidden">
+    <p class="has-text-white has-text-left">Пользователи с доступом к монитору:</p>
+    <div id="shares" class="box">
         {% for share in user_monitor.shared_users %}
             <div class="grid">
                 <div class="cell">
@@ -78,13 +79,13 @@
         {% endfor %}
     </div>
 </div>
+{% endif %}
+{% if user_monitor.incidents %}
 <div class="block">
-    <div id="incidents" class="box hide_empty is-hidden">
+    <p class="has-text-white has-text-left">Список аварий:</p>
+    <div id="incidents" class="box">
         {% for incident in user_monitor.incidents %}
             <div class="grid">
-                <div class="cell">
-                    <p>Зафиксировано падение!</p>
-                </div>
                 <div class="cell">
                     <p>Создано в: {% if incident.created_at %} {{ incident.created_at.strftime("%d-%m-%Y %H:%M") }} {% else %} Пока не было {% endif %}</p>
                 </div>
@@ -100,5 +101,6 @@
         {% endfor %}
     </div>
 </div>
+{% endif %}
 {% include "/mnts/modals/share_monitor_modal.html" %}
 {% endblock %}
